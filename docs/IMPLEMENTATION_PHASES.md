@@ -98,10 +98,10 @@ Ordenar el desarrollo del ciclo 1 en tareas pequeñas, dependientes y verificabl
 
 ### Tareas
 
-- [ ] Registrar stock por sucursal.
-- [ ] Registrar movimientos de inventario.
-- [ ] Consultar inventario consolidado.
-- [ ] Aplicar reglas de stock bajo.
+- [x] Registrar stock por sucursal.
+- [x] Registrar movimientos de inventario.
+- [x] Consultar inventario consolidado.
+- [x] Aplicar reglas de stock bajo.
 
 ### Casos de uso
 
@@ -117,11 +117,11 @@ Ordenar el desarrollo del ciclo 1 en tareas pequeñas, dependientes y verificabl
 
 ### Tareas
 
-- [ ] Crear reservas de prendas.
-- [ ] Gestionar carrito.
-- [ ] Crear compra digital.
-- [ ] Consultar estado del pedido.
-- [ ] Atender reserva en sucursal.
+- [x] Crear reservas de prendas.
+- [x] Gestionar carrito.
+- [x] Crear compra digital.
+- [x] Consultar estado del pedido.
+- [x] Atender reserva en sucursal.
 
 ### Casos de uso
 
@@ -138,10 +138,10 @@ Ordenar el desarrollo del ciclo 1 en tareas pequeñas, dependientes y verificabl
 
 ### Tareas
 
-- [ ] Registrar ventas en caja.
-- [ ] Procesar pago presencial.
-- [ ] Emitir comprobantes.
-- [ ] Vincular venta con reserva si corresponde.
+- [x] Registrar ventas en caja.
+- [x] Procesar pago presencial.
+- [x] Emitir comprobantes.
+- [x] Vincular venta con reserva si corresponde.
 
 ### Casos de uso
 
@@ -155,10 +155,10 @@ Ordenar el desarrollo del ciclo 1 en tareas pequeñas, dependientes y verificabl
 
 ### Tareas
 
-- [ ] Construir reportes y dashboards.
-- [ ] Preparar base para recomendaciones IA.
-- [ ] Preparar base para vestidor virtual.
-- [ ] Preparar asistente virtual si entra en alcance.
+- [x] Construir reportes y dashboards.
+- [x] Preparar base para recomendaciones IA.
+- [x] Preparar base para vestidor virtual.
+- [x] Preparar asistente virtual si entra en alcance.
 
 ### Casos de uso
 
