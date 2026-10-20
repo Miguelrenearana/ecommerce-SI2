@@ -1,7 +1,4 @@
-from enum import Enum
+# Re-export from canonical package location for backward compatibility
+from app.packages.p2_gestion_productos_catalogo.schemas.catalog_enums import ProductStatusEnum
 
-
-class ProductStatusEnum(str, Enum):
-    pending = "pending"
-    active = "active"
-    inactive = "inactive"
+__all__ = ["ProductStatusEnum"]
