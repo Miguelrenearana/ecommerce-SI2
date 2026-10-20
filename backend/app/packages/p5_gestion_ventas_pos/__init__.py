@@ -1,3 +1,1 @@
-from app.packages.p5_gestion_ventas_pos.router import p5_router
-
-__all__ = ["p5_router"]
+"""Paquete 5 – Gestión de ventas y POS (CU17–CU18)"""

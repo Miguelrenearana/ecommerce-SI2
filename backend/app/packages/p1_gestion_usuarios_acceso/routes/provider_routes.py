@@ -6,7 +6,7 @@ from app.auth.dependencies import require_roles
 from app.core.database import get_db
 from app.packages.p1_gestion_usuarios_acceso.models.provider import Provider
 from app.packages.p1_gestion_usuarios_acceso.models.user import User
-from app.schemas.enums import RolEnum
+from app.packages.p1_gestion_usuarios_acceso.schemas.enums import RolEnum
 from app.packages.p1_gestion_usuarios_acceso.schemas.provider_schema import ProviderCreate, ProviderRead, ProviderStatusUpdate, ProviderUpdate
 from app.packages.p1_gestion_usuarios_acceso.schemas.provider_availability_schema import ProviderAvailabilityBatchUpdate
 from app.packages.p1_gestion_usuarios_acceso.services.provider_service import (
@@ -19,7 +19,7 @@ from app.packages.p1_gestion_usuarios_acceso.services.provider_service import (
     provider_availability_map,
     update_provider_availability,
 )
-from app.services.catalog_service import _product_to_read
+from app.packages.p2_gestion_productos_catalogo.services.catalog_service import _product_to_read
 from app.utils.response import response
 
 

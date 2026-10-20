@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
-from app.schemas.catalog_enums import ProductStatusEnum
+from app.packages.p2_gestion_productos_catalogo.schemas.catalog_enums import ProductStatusEnum
 
 
 class ProductVariant(Base):

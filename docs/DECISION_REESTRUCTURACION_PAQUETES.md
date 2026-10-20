@@ -1,7 +1,7 @@
 # Decisión de Arquitectura: Reestructuración por Paquetes de Dominio (Backend)
 
 **Fecha:** 20 de Octubre de 2026  
-**Estado:** Aprobado / En Implementación  
+**Estado:** Aprobado / Reestructuración Completada (P1–P6)  
 **Contexto:** Preparación y estabilización de la base arquitectónica previa a la transición hacia **ICONIX** y **SaaS Multitenant** (Examen Parcial 2).
 
 ---
@@ -37,8 +37,8 @@ Los nombres de las carpetas reflejan fielmente los paquetes definidos en la docu
 | **`p2_gestion_productos_catalogo`** | CU07–CU10 | Productos, variantes, atributos (tallas, colores, temporadas, colecciones) y envíos de proveedor. |
 | **`p3_gestion_inventario_disponibilidad`** | CU11–CU13 | Stock por sucursal, movimientos (ingreso, salida, traspaso) y consolidado. |
 | **`p4_gestion_compras_reservas`** | CU14–CU16, CU25 | Carrito de compras, reservas de cliente, órdenes, pagos electrónicos (Stripe/efectivo) y cupones. |
-| **`p5_gestion_ventas_sucursal`** | CU17–CU18 | Atención de reservas en tienda física y punto de venta presencial (POS). *Se extenderá en Parcial 2 con offline sync y cambios de prenda.* |
-| **`p6_experiencia_inteligente_analitica`** | CU19–CU24 | Vestidor virtual AR, recomendaciones IA (ALS), chatbot Gemini, reportes por voz y notificaciones push. |
+| **`p5_gestion_ventas_pos`** | CU17–CU18 | Atención de reservas en tienda física y punto de venta presencial (POS). *Se extenderá en Parcial 2 con offline sync y cambios de prenda.* |
+| **`p6_inteligencia_analitica`** | CU19–CU24 | Recomendaciones IA (ALS), chatbot Gemini, reportes ejecutivos/lenguaje natural, dashboard analítico y notificaciones push/multi-canal. |
 | **`p0_saas_multitenant`** *(Futuro Parcial 2)* | Requisitos SaaS | Empresas (tenants), planes de suscripción, cuotas y control de acceso multitenant. |
 
 ### 2.2. Rechazo de Micro-Subcarpetas / Subapps Innecesarias
@@ -92,7 +92,15 @@ La reestructuración se ejecuta de manera modular, paquete por paquete:
    - `routes/`: `sales_routes.py`.
    - `router.py`: Consolida las rutas de P5 bajo un enrutador único `p5_router`.
 
-6. **Cero Regresiones (Backward-Compatibility Shims):**
-   Para evitar roturas en migraciones de Alembic, scripts de carga de datos (`seed.py`) o importaciones en paquetes pendientes de migrar:
+6. **Paquete 6 (`p6_inteligencia_analitica`) - COMPLETADO:**
+   `backend/app/packages/p6_inteligencia_analitica/`
+   - `models/`: `conversation.py`, `conversation_message.py`, `notification.py`, `recommendation.py`.
+   - `schemas/`: `chatbot_schema.py`, `dashboard_schema.py`, `notification_schema.py`, `report_schema.py`.
+   - `services/`: `chatbot_service.py`, `conversation_service.py`, `dashboard_service.py`, `natural_report_service.py`, `notification_delivery.py`, `notification_service.py`, `recommendation_service.py`, `report_service.py`.
+   - `routes/`: `chatbot_routes.py`, `dashboard_routes.py`, `notification_routes.py`, `recommendation_routes.py`, `report_routes.py`.
+   - `router.py`: Consolida las rutas de P6 bajo un enrutador único `p6_router`.
+
+7. **Cero Regresiones (Backward-Compatibility Shims):**
+   Para evitar roturas en migraciones de Alembic, scripts de carga de datos (`seed.py`) o importaciones en bibliotecas externas:
    - Los módulos existentes en `app/models/`, `app/schemas/`, `app/services/` y `app/routes/` reexportan transparentemente las definiciones canónicas desde sus respectivos paquetes.
-   - Las rutas HTTP expuestas por FastAPI (`/api/inventory`, `/api/replenishment`, etc.) se mantienen 100% idénticas, garantizando impacto cero en Frontend y Mobile.
+   - Las rutas HTTP expuestas por FastAPI (`/api/chatbot`, `/api/dashboard`, `/api/notifications`, `/api/recommendations`, `/api/reports`, etc.) se mantienen 100% idénticas, garantizando impacto cero en Frontend y Mobile.

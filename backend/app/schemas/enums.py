@@ -1,18 +1,8 @@
-from enum import Enum
+# Legacy compatibility shim - Canonical location: app.packages.p1_gestion_usuarios_acceso.schemas.enums
+from app.packages.p1_gestion_usuarios_acceso.schemas.enums import (
+    GenderEnum,
+    ProviderStatusEnum,
+    RolEnum,
+)
 
-class RolEnum(str, Enum):
-    administrador = "administrador"
-    cliente = "cliente"
-    proveedor = "proveedor"
-    encargado = "encargado"
-    cajero = "cajero"
-    delivery = "delivery"
-
-class GenderEnum(str, Enum):
-    masculino = "masculino"
-    femenino = "femenino"
-
-
-class ProviderStatusEnum(str, Enum):
-    active = "active"
-    suspended = "suspended"
+__all__ = ["RolEnum", "GenderEnum", "ProviderStatusEnum"]

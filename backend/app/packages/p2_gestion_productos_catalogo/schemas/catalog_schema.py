@@ -3,7 +3,7 @@ from uuid import UUID
 from decimal import Decimal
 from enum import Enum
 
-from app.schemas.catalog_enums import ProductStatusEnum
+from app.packages.p2_gestion_productos_catalogo.schemas.catalog_enums import ProductStatusEnum
 
 
 class NameCreate(BaseModel):
