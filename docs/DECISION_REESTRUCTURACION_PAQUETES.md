@@ -76,7 +76,23 @@ La reestructuración se ejecuta de manera modular, paquete por paquete:
    - `routes/`: `inventory_routes.py`, `replenishment_routes.py`.
    - `router.py`: Consolida las rutas de P3 bajo un enrutador único `p3_router`.
 
-4. **Cero Regresiones (Backward-Compatibility Shims):**
+4. **Paquete 4 (`p4_gestion_compras_reservas`) - COMPLETADO:**
+   `backend/app/packages/p4_gestion_compras_reservas/`
+   - `models/`: `cart.py`, `cart_item.py`, `reservation.py`, `reservation_item.py`, `order.py`, `order_item.py`, `payment_attempt.py`, `stripe_event.py`, `promotion_code.py`, `promotion_code_usage.py`.
+   - `schemas/`: `cart_schema.py`, `reservation_schema.py`, `order_schema.py`, `payment_schema.py`, `promotion_schema.py`.
+   - `services/`: `pricing_service.py`, `promotion_service.py`, `cart_service.py`, `reservation_service.py`, `order_service.py`, `expiration_service.py`.
+   - `routes/`: `cart_routes.py`, `reservation_routes.py`, `order_routes.py`, `payment_routes.py`, `promotion_routes.py`.
+   - `router.py`: Consolida las rutas de P4 bajo un enrutador único `p4_router`.
+
+5. **Paquete 5 (`p5_gestion_ventas_pos`) - COMPLETADO:**
+   `backend/app/packages/p5_gestion_ventas_pos/`
+   - `models/`: `sale.py`, `sale_item.py`.
+   - `schemas/`: `sales_schema.py`.
+   - `services/`: `sales_service.py`.
+   - `routes/`: `sales_routes.py`.
+   - `router.py`: Consolida las rutas de P5 bajo un enrutador único `p5_router`.
+
+6. **Cero Regresiones (Backward-Compatibility Shims):**
    Para evitar roturas en migraciones de Alembic, scripts de carga de datos (`seed.py`) o importaciones en paquetes pendientes de migrar:
    - Los módulos existentes en `app/models/`, `app/schemas/`, `app/services/` y `app/routes/` reexportan transparentemente las definiciones canónicas desde sus respectivos paquetes.
    - Las rutas HTTP expuestas por FastAPI (`/api/inventory`, `/api/replenishment`, etc.) se mantienen 100% idénticas, garantizando impacto cero en Frontend y Mobile.

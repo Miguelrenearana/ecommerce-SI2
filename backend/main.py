@@ -8,7 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.packages.p1_gestion_usuarios_acceso import p1_router
 from app.packages.p2_gestion_productos_catalogo import p2_router
 from app.packages.p3_gestion_inventario_disponibilidad import p3_router
-from app.routes import cart_routes, reservation_routes, order_routes, payment_routes, sales_routes, report_routes, dashboard_routes, promotion_routes, recommendation_routes, chatbot_routes, notification_routes
+from app.packages.p4_gestion_compras_reservas import p4_router
+from app.packages.p5_gestion_ventas_pos import p5_router
+from app.routes import report_routes, dashboard_routes, recommendation_routes, chatbot_routes, notification_routes
 from app.core.error_handlers import register_error_handlers
 from app.core.database import SessionLocal
 from app.services.expiration_service import run_daily_expiration
@@ -72,14 +74,16 @@ api_router.include_router(p2_router)
 
 # Paquete 3: Gestión de inventario y disponibilidad (CU11–CU13)
 api_router.include_router(p3_router)
-api_router.include_router(cart_routes.router)
-api_router.include_router(reservation_routes.router)
-api_router.include_router(order_routes.router)
-api_router.include_router(payment_routes.router)
-api_router.include_router(sales_routes.router)
+# Paquete 4: Gestión de compras y reservas (CU14–CU16, CU25)
+api_router.include_router(p4_router)
+
+
+
+# Paquete 5: Ventas y POS (CU17–CU18)
+api_router.include_router(p5_router)
 api_router.include_router(report_routes.router)
 api_router.include_router(dashboard_routes.router)
-api_router.include_router(promotion_routes.router)
+
 
 api_router.include_router(recommendation_routes.router)
 api_router.include_router(chatbot_routes.router)
