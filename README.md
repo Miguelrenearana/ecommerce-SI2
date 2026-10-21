@@ -1,6 +1,6 @@
 # Women Style
 
-Proyecto ecommerce (web) con backend en FastAPI y frontend en Angular.
+Proyecto ecommerce (app y web) con backend en FastAPI y frontend en Angular.
 
 ## Estructura
 
