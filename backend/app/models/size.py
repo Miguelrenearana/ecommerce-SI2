@@ -1,12 +1,4 @@
-from sqlalchemy import Column, String
-from sqlalchemy.dialects.postgresql import UUID
+# Re-export from canonical package location for backward compatibility
+from app.packages.p2_gestion_productos_catalogo.models.size import Size
 
-from app.core.database import Base
-import uuid
-
-
-class Size(Base):
-    __tablename__ = "sizes"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    name = Column(String, nullable=False, unique=True)
+__all__ = ["Size"]

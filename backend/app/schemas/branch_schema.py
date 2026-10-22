@@ -1,31 +1,14 @@
-from pydantic import BaseModel
-from uuid import UUID
+# Re-export from canonical package location for backward compatibility
+from app.packages.p1_gestion_usuarios_acceso.schemas.branch_schema import (
+    BranchActiveUpdate,
+    BranchCreate,
+    BranchRead,
+    BranchUpdate,
+)
 
-
-class BranchCreate(BaseModel):
-    name: str
-    city: str
-    is_default: bool = False
-
-
-class BranchRead(BaseModel):
-    id: UUID
-    name: str
-    city: str
-    is_default: bool
-    is_active: bool
-
-    model_config = {
-        "from_attributes": True,
-    }
-
-
-class BranchUpdate(BaseModel):
-    name: str
-    city: str
-    is_default: bool = False
-    is_active: bool = True
-
-
-class BranchActiveUpdate(BaseModel):
-    is_active: bool
+__all__ = [
+    "BranchActiveUpdate",
+    "BranchCreate",
+    "BranchRead",
+    "BranchUpdate",
+]

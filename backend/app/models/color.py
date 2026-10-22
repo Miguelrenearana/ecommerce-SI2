@@ -1,13 +1,4 @@
-from sqlalchemy import Column, String
-from sqlalchemy.dialects.postgresql import UUID
+# Re-export from canonical package location for backward compatibility
+from app.packages.p2_gestion_productos_catalogo.models.color import Color
 
-from app.core.database import Base
-import uuid
-
-
-class Color(Base):
-    __tablename__ = "colors"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    name = Column(String, nullable=False, unique=True)
-    hex_code = Column(String, nullable=True)
+__all__ = ["Color"]
