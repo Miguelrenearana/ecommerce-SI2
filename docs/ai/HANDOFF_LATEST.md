@@ -14,9 +14,11 @@
    - Incorporado el aporte extra de geolocalización con **OpenStreetMap** en la aplicación móvil Flutter.
 3. **Instalación de Dependencias de Frontend:**
    - Resuelto el conflicto de dependencias del frontend con `npm install --legacy-peer-deps`.
-4. **Infraestructura de Memoria Viva y Contexto:**
+4. **Infraestructura de Memoria Viva y Contexto Consolidado:**
    - Creado [`AGENTS.md`](file:///c:/Users/PERSONAL/ecommerce-SI2/AGENTS.md) en la raíz del proyecto.
-   - Creados los documentos maestros de contexto en `docs/` y `docs/ai/`.
+   - Creados los 7 documentos maestros de contexto en la raíz de `docs/` (`PROJECT_CONTEXT.md`, `ACTORS_AND_USE_CASES.md`, `ARCHITECTURE.md`, `OFFLINE_AND_SYNC.md`, `BUSINESS_POLICIES.md`, `AI_AND_ML.md`, `PRESENTATIONS_ROADMAP.md`).
+   - [`docs/ARCHITECTURE.md`](file:///c:/Users/PERSONAL/ecommerce-SI2/docs/ARCHITECTURE.md) se consolida como la **Única Fuente de Verdad** de la arquitectura técnica (absorbiendo los detalles de directorios frontend/mobile y seguridad RBAC de `SISTEMA_ARQUITECTURA_ACTUAL.md`).
+   - Archivados en `docs/FIRST_PARTIAL/`: `DECISION_REESTRUCTURACION_PAQUETES.md`, `SISTEMA_ARQUITECTURA_ACTUAL.md` y `ARCHITECTURE_THEORY.md`, erradicando duplicidad documental en la raíz de `docs/`.
 
 ### 2. Próxima Tarea Inmediata (Presentación 1: 25/10/2026)
 * **Objetivo:** Implementar la base de **SaaS Multitenant** y el **Catálogo Offline** (10 Casos de Uso del Ciclo 1):
