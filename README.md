@@ -1,193 +1,188 @@
-# Women Style
+# FashionStore — Plataforma E-Commerce SaaS Multitenant
 
-Proyecto ecommerce (web) con backend en FastAPI y frontend en Angular.
-
-## Estructura
-
-- `backend/` - API construida con FastAPI, SQLAlchemy y PostgreSQL.
-- `frontend/` - Aplicación web construida con Angular 21 y componentes Spartan/Helm.
+Sistema integral de comercio electrónico multitenant para boutiques y tiendas de moda, compuesto por una API REST en FastAPI, un frontend web PWA en Angular 21 y una aplicación móvil en Flutter.
 
 ---
 
-## Requisitos
+## 🏗️ Estructura del Proyecto
 
-| Componente | Requisito |
-|---|---|
-| Backend | Python **3.12** (o 3.13). PostgreSQL (servicio corriendo). |
-| Frontend | Node **20.19+** o **22.13+** (lo valida `frontend/scripts/check-node.mjs`). npm 10+. |
-
-> **Importante:** usa Python 3.12, **no 3.14**. El `requirements.txt` contiene
-> versiones fijadas improntas que no tienen binarios (wheels) para 3.14 y
-> intentarían compilarse desde código fuente (error de MSVC / `cffi`).
+- [`backend/`](file:///c:/Users/PERSONAL/ecommerce-SI2/backend/) - API REST construida con **FastAPI**, **SQLAlchemy ORM**, **Alembic** y **PostgreSQL**. Arquitectura modular dividida en paquetes de dominio (`p0` a `p6`).
+- [`frontend/`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/) - Aplicación Web Progresiva (**PWA**) desarrollada en **Angular 21**, **TailwindCSS**, componentes **Spartan/Helm UI**, IndexedDB para modo offline e integración con Stripe y Firebase Cloud Messaging.
+- [`mobile/`](file:///c:/Users/PERSONAL/ecommerce-SI2/mobile/) - Aplicación móvil desarrollada en **Flutter (Dart)** con persistencia local en SQLite (`sqflite`), geolocalización y mapas con OpenStreetMap.
+- [`docs/`](file:///c:/Users/PERSONAL/ecommerce-SI2/docs/) - Especificaciones de casos de uso (ICONIX), arquitectura, políticas de negocio y bitácoras de diseño.
 
 ---
 
-## Backend
+## 📋 Requisitos del Sistema
 
-### 1. Primera vez
+| Componente | Versión Requerida | Notas importantes |
+| :--- | :--- | :--- |
+| **Backend** | Python **3.12** | **Evitar Python 3.14**: paquetes fijados en `requirements.txt` no tienen wheels precompilados para 3.14 y fallarán al compilar en C++. |
+| **Base de Datos** | PostgreSQL **15+** | Servicio activo en local o remoto. |
+| **Frontend** | Node.js **20.19.x** o **22.13.x+** | Versiones LTS obligatorias. No usar versiones impares como Node 21. npm 10+. |
+| **Mobile** | Flutter SDK **3.x+** / Dart SDK | Android Studio / VS Code con extensiones Flutter. |
 
-Abrir una terminal en `backend/`, crear el entorno virtual, instalar dependencias
-y preparar la base de datos:
+---
 
+## 🚀 Puesta en Marcha
+
+### 1. Backend (FastAPI + PostgreSQL)
+
+#### Primera vez:
+1. Abre una terminal en la carpeta `backend/` y crea el entorno virtual:
+   ```powershell
+   cd backend
+   py -3.12 -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   ```
+   *(En Linux / macOS o Git Bash: `source .venv/bin/activate` | En CMD: `.\.venv\Scripts\activate.bat`)*
+
+2. Instala las dependencias:
+   ```powershell
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
+   ```
+
+3. Configura las variables de entorno:
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+   Edita `.env` con la URL de tu base de datos:
+   ```env
+   DATABASE_URL=postgresql+psycopg2://postgres:TU_PASSWORD@localhost:5432/tu_db
+   SECRET_KEY=clave_secreta_para_jwt_super_segura
+   ACCESS_TOKEN_EXPIRE_MINUTES=60
+   ALGORITHM=HS256
+   ```
+
+4. Aplica las migraciones de Alembic y puebla los datos iniciales de prueba:
+   ```powershell
+   python -m alembic upgrade head
+   python seed.py
+   ```
+
+#### Ejecuciones siguientes:
 ```powershell
 cd backend
-py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-```
-
-> En **cmd.exe** usa `.venv\Scripts\activate.bat` en vez de `Activate.ps1`.
-> Si te sale un prompt con `(.venv)` al inicio, el entorno está activo.
-
-Crear el archivo `.env` (copia de `backend\.env.example`):
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Editar `.env` y poner al menos:
-
-```env
-DATABASE_URL=postgresql+psycopg2://postgres:TU_PASSWORD@localhost:5432/tu_db
-SECRET_KEY=tu_clave_secreta
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-ALGORITHM=HS256
-```
-
-Crea la base de datos indicada en `DATABASE_URL` si aún no existe
-(por ejemplo `tu_db`), luego construye el esquema y puebla con datos demo:
-
-```powershell
-python -m alembic upgrade head
-python seed.py
-```
-
-### 2. Siguientes veces
-
-```powershell
-cd backend
-.\.venv\Scripts\Activate.ps1
-python -m alembic upgrade head   # si hubo migraciones nuevas
+python -m alembic upgrade head   # si hubo migraciones nuevas de tu equipo
 python -m uvicorn main:app --reload
 ```
-
-La API queda en `http://127.0.0.1:8000`.
-
-- Swagger UI: `http://127.0.0.1:8000/docs`
-- ReDoc: `http://127.0.0.1:8000/redoc`
-
-### Credenciales demo
-
-`seed.py` crea cuentas demo; todas usan la contraseña **`Fashion123!`**:
-
-- Admin global: `admin.global@fashionstore.bo`
-- Admin sucursal: `admin.lp@fashionstore.bo`, `admin.sc@fashionstore.bo`, `admin.cbba@fashionstore.bo`
-- Encargados: `encargada.lp@fashionstore.bo`, `encargado.sc@fashionstore.bo`, `encargado.cbba@fashionstore.bo`
-- Cajeros: `cajera.lp@fashionstore.bo`, `cajero.sc@fashionstore.bo`, `cajera.cbba@fashionstore.bo`
-- Delivery: `delivery1@fashionstore.bo`, `delivery2@fashionstore.bo`
-- Cliente: `cliente01.demo@fashionstore.bo`
-
-### Comandos útiles de migraciones
-
-```powershell
-python -m alembic upgrade head   # aplica migraciones
-python -m alembic revision -m "mensaje"   # crea una migración nueva
-python -m alembic downgrade -1   # revierte la última
-```
+- **API Base:** `http://127.0.0.1:8000`
+- **Documentación Swagger UI:** `http://127.0.0.1:8000/docs`
+- **Documentación ReDoc:** `http://127.0.0.1:8000/redoc`
 
 ---
 
-## Frontend
+### 2. Frontend (Angular 21 PWA)
 
-### Versión de Node
-
-La app exige Node **20.19+** o **22.13+** (lo valida `scripts/check-node.mjs`).
-Si tienes otra versión (por ejemplo v26), `npm run start` fallará con:
-
-```
-[frontend] Version de Node no compatible con esta app.
-[frontend] Detectada: v26.1.0
-[frontend] Requerida: v20.19.x o v22.13.x+
+#### Versión de Node requerida:
+El proyecto valida la versión con `scripts/check-node.mjs`. Si usas NVM o FNM:
+```bash
+nvm use 22
+# o si usas fnm:
+fnm use 22
 ```
 
-Para cambiarla a Node 22 (PowerShell):
-
-**Cambiar en la terminal actual:**
-
-```powershell
-$env:Path = "C:\Users\PERSONAL\AppData\Roaming\fnm\node-versions\v22.13.1\installation;" + $env:Path; node -v
-```
-
-Debe mostrar `v22.13.1`.
-
-**Cambiarla de forma permanente** (así toda terminal nueva ya abre con Node 22):
-
-```powershell
-New-Item -ItemType File -Force $PROFILE | Out-Null
-Add-Content $PROFILE '$env:Path = "C:\Users\PERSONAL\AppData\Roaming\fnm\node-versions\v22.13.1\installation;" + $env:Path'
-```
-
-### 1. Primera vez
+#### Primera vez (Instalación de dependencias):
+Abre una terminal en `frontend/`:
 
 ```powershell
 cd frontend
-npm install --legacy-peer-deps
+npm install --legacy-peer-deps --ignore-scripts
 ```
 
-> Usa `--legacy-peer-deps` por el conflicto de peers de `angular-chrts`
-> (librería de gráficas que pide Angular 19, mientras el proyecto es Angular 21).
+> [!TIP]
+> **¿Por qué esos flags?**
+> - `--legacy-peer-deps`: Necesario para resolver restricciones estrictas entre componentes Spartan UI y librerías de Angular 21.
+> - `--ignore-scripts`: **Crucial en Windows**. Evita que librerías nativas de IA/C++ (`sharp`, `onnxruntime-node`) intenten compilar con `node-gyp` o descarguen binarios que cuelgan la terminal durante horas. La instalación terminará en 1 a 3 minutos.
 
-> **Si una instalación se corta a mitad**, borra `node_modules` antes de
-> reinstalar o quedarán archivos corruptos:
-> `Remove-Item -Recurse -Force node_modules; npm install --legacy-peer-deps`
+#### Verificación rápida de la instalación:
+Comprueba que los tipos de TypeScript se instalaron correctamente:
+```powershell
+Test-Path node_modules/@angular/core/types
+```
+*(Debe responder `True`)*
 
-### 2. Siguientes veces
-
+#### Ejecuciones siguientes (Levantar servidor local):
 ```powershell
 cd frontend
 npm run start
 ```
+Luego abre tu navegador en **`http://localhost:4200/`**.
 
-Luego abre `http://localhost:4200/`.
+> [!NOTE]
+> El frontend se comunica con el backend en `http://localhost:8000/api` (definido en [`frontend/src/environments/environment.ts`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/src/environments/environment.ts)). Asegúrate de que el backend esté corriendo.
 
-El frontend llama a la API en `http://localhost:8000/api`
-(definido en `frontend/src/environments/environment.ts`). Asegúrate de que el
-backend esté corriendo.
+---
 
-### Emulador Android
+### 3. Mobile (Flutter)
 
-Para consumir desde un emulador Android, expón el backend en todas las interfaces
-y usa `10.0.2.2` como host desde el emulador:
+#### Primera vez:
+1. Abre una terminal en `mobile/`:
+   ```bash
+   cd mobile
+   flutter pub get
+   ```
 
+2. Verifica dispositivos conectados o emuladores:
+   ```bash
+   flutter devices
+   ```
+
+3. Inicia la aplicación:
+   ```bash
+   flutter run
+   ```
+
+> [!IMPORTANT]
+> **Consumo desde Emulador Android**:
+> El emulador de Android mapea `localhost` de tu PC a la IP especial `10.0.2.2`. Si pruebas la app móvil contra tu backend local, arranca el backend con:
+> ```powershell
+> python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+> ```
+> y apunta la URL base de la app a `http://10.0.2.2:8000/api`.
+
+---
+
+## 👥 Credenciales Demo para Pruebas
+
+El script `python seed.py` genera usuarios de prueba para todos los roles del sistema. Todas las cuentas comparten la contraseña: **`Fashion123!`**
+
+| Rol | Correo Electrónico | Alcance / Permisos |
+| :--- | :--- | :--- |
+| **Admin Global** | `admin.global@fashionstore.bo` | Configuración SaaS, planes y tenants. |
+| **Admin Sucursal** | `admin.lp@fashionstore.bo`<br>`admin.sc@fashionstore.bo`<br>`admin.cbba@fashionstore.bo` | Gestión completa de sucursal (La Paz, Santa Cruz, Cbba). |
+| **Encargado** | `encargada.lp@fashionstore.bo`<br>`encargado.sc@fashionstore.bo` | Control de stock, inventario y solicitudes de reposición. |
+| **Cajero** | `cajera.lp@fashionstore.bo`<br>`cajero.sc@fashionstore.bo` | Ventas POS, cobros y registro de clientes. |
+| **Delivery** | `delivery1@fashionstore.bo`<br>`delivery2@fashionstore.bo` | Gestión y confirmación de despachos y entregas. |
+| **Cliente** | `cliente01.demo@fashionstore.bo` | Catálogo público, reservas, carrito y probador virtual. |
+
+---
+
+## 🛠️ Comandos Frecuentes y Resolución de Problemas
+
+### Base de datos y Migraciones (Backend)
+- **Crear nueva migración tras cambiar modelos:**
+  ```powershell
+  python -m alembic revision -m "descripcion_del_cambio"
+  ```
+- **Aplicar migraciones pendientes:**
+  ```powershell
+  python -m alembic upgrade head
+  ```
+- **Revertir la última migración aplicada:**
+  ```powershell
+  python -m alembic downgrade -1
+  ```
+
+### Reinstalación limpia del Frontend (si ocurre corrupción en Windows)
+Si una instalación se canceló abruptamente o faltan tipos de TypeScript:
 ```powershell
-cd backend
-python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+cd frontend
+Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
+npm install --legacy-peer-deps --ignore-scripts
 ```
 
-Y en el frontend, reemplaza el `apiBaseUrl` (en `environment.ts` o el
-`runtimeConfig` de `public/runtime-config.js`) por
-`http://10.0.2.2:8000/api`.
-
----
-
-## Resumen rápido
-
-| Acción | Comandos |
-|---|---|
-| Backend (primera vez) | `py -3.12 -m venv .venv` → `.\.venv\Scripts\Activate.ps1` → `pip install -r requirements.txt` → crear `.env` → `python -m alembic upgrade head` → `python seed.py` |
-| Backend (siguiente) | `.\.venv\Scripts\Activate.ps1` → `python -m uvicorn main:app --reload` |
-| Frontend (primera vez) | `npm install --legacy-peer-deps` |
-| Frontend (siguiente) | `npm run start` |
-| Poblar base de datos | `python seed.py` |
-
----
-
-## Notas
-
-- Las tablas **no** se crean automáticamente al arrancar la API; ejecuta antes
-  `python -m alembic upgrade head`.
-- Si `alembic` no es el binario del venv, usa `python -m alembic`.
-- Backend: `app/auth/`, `app/core/`, `app/models/`, `app/routes/`,
-  `app/schemas/`, `app/services/`, `app/utils/`.
-- Frontend: `src/app/shared/` (auth, perfil, guards), `src/app/features/`
-  (admin, cliente, cajero, proveedor, encargado, delivery).
+> [!CAUTION]
+> **Nunca ejecutes `npm audit fix --force`**: Esto forzará la actualización de versiones mayores rompiendo la compatibilidad entre paquetes del frontend.

@@ -37,7 +37,7 @@ Antes de responder, planificar o generar código, consulta estos documentos en o
   - **Aplicación Móvil:** Flutter (Dart), SQLite (`sqflite`), OpenStreetMap (`flutter_map` + OpenRouteService) y Realidad Aumentada.
   - **Integraciones:** Stripe (Pasarela de pagos), Firebase FCM (Notificaciones push), Google Gemini API (RAG con voz).
 * **Arquitectura de Módulos Profundos (`codebase-design`):**
-  - El backend se estructura en **Paquetes de Dominio**: `p0_saas_platform`, `p1_gestion_usuarios_acceso`, `p2_gestion_productos_catalogo`, `p3_gestion_inventario_disponibilidad`, `p4_gestion_compras_reservas`, `p5_gestion_ventas_pos`, `p6_inteligencia_analitica`.
+  - El backend se estructura en **Paquetes de Dominio**: `p0_saas_plataforma`, `p1_gestion_usuarios_acceso`, `p2_gestion_productos_catalogo`, `p3_gestion_inventario_disponibilidad`, `p4_gestion_compras_reservas`, `p5_gestion_ventas_pos`, `p6_inteligencia_analitica`.
   - **Prohibido acoplar `__init__.py`:** Los archivos `__init__.py` raíz de cada paquete deben mantenerse limpios para evitar dependencias circulares durante la carga de módulos. `backend/main.py` importa explícitamente desde `.router`.
   - **Zero Breakage:** Mantener los *shims* de compatibilidad en `app/models/`, `app/schemas/`, `app/services/` y `app/routes/`.
 * **Aislamiento Multitenant Estricto (SaaS):**
