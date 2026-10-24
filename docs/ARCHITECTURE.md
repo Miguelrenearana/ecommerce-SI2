@@ -126,7 +126,12 @@ backend/app/packages/
     └── schemas.py
 ```
 
-### 3.2. Regla de Oro de los Archivos `__init__.py`
+### 3.2. Rechazo de Micro-Subcarpetas / Subapps Innecesarias
+Durante la concepción del backend, se evaluó y **descartó** la subdivisión de cada paquete en micro-carpetas por entidad (p. ej. `p1/users/`, `p1/roles/`, `p1/branches/`):
+- **Motivo:** Produce módulos poco profundos (*shallow modules*), fragmentación excesiva de archivos con pocas líneas de código, e incurre en problemas recurrentes de **importaciones circulares** en Python/SQLAlchemy (ej. `User` referencia a `Branch` y `Branch` referencia a `User`).
+- **Solución adoptada:** Cada paquete agrupa cohesivamente sus modelos, esquemas, servicios y rutas, ofreciendo una interfaz interna limpia y un enrutador consolidado hacia `main.py`.
+
+### 3.3. Regla de Oro de los Archivos `__init__.py`
 Para erradicar fallos de importación circular durante el arranque de FastAPI:
 - Los archivos `__init__.py` de los paquetes de dominio se mantienen **vacíos o con metadatos mínimos**.
 - `backend/main.py` registra los routers importando explícitamente desde `.router` de cada paquete:
@@ -140,7 +145,7 @@ Para erradicar fallos de importación circular durante el arranque de FastAPI:
   from app.packages.p6_inteligencia_analitica.router import router as p6_router
   ```
 
-### 3.3. Capa de Shims de Compatibilidad (*Zero Breakage*)
+### 3.4. Capa de Shims de Compatibilidad (*Zero Breakage*)
 Para asegurar que los tests existentes y módulos de soporte continúen funcionando sin fricción:
 - `backend/app/models/__init__.py` re-exporta todas las clases de entidades SQLAlchemy desde sus respectivos paquetes.
 - `backend/app/schemas/__init__.py` re-exporta los esquemas Pydantic.
@@ -199,52 +204,79 @@ erDiagram
 
 ## 5. Arquitectura del Frontend Web / PWA (Angular 21)
 
-El frontend está construido sobre **Angular 21** configurado con capacidades completas de **Progressive Web App (PWA)**:
+El frontend está construido sobre **Angular 21** configurado con capacidades completas de **Progressive Web App (PWA)**, estructurado por módulos de dominio y perfiles de usuario:
 
-### 5.1. Componentes PWA y Modo Desconectado
+### 5.1. Estructura de Directorios (`frontend/src/app/`)
+```
+frontend/src/app/
+├── core/                                # Capa de Infraestructura del Cliente
+│   ├── guards/                          # AuthGuard, RoleGuard (RBAC por rol)
+│   ├── interceptors/                    # AuthInterceptor (inyecta Authorization Bearer token con tenant_id)
+│   ├── models/                          # Interfaces TypeScript de dominio
+│   └── services/                        # ApiService, AuthService, CartStateService, OfflineCatalogService
+│
+├── components/                          # UI Transversal Compartida
+│   ├── layout/                          # Header, Sidebar, Footer, Breadcrumbs
+│   └── ui/                              # Botones, inputs, badges, diálogos modales, tablas (Spartan UI)
+│
+└── features/                            # Módulos Funcionales organizados por Perfil/Rol
+    ├── cliente/                         # Catálogo de compras, detalle de prenda, carrito, checkout, perfil
+    ├── admin/                           # Dashboard ejecutivo, gestión de usuarios, sucursales y reportes
+    ├── encargado/                       # Control de stock de sucursal, confirmación de reservas, traspasos
+    ├── cajero/                          # Terminal Punto de Venta (POS), atención de reservas, cobro
+    ├── proveedor/                       # Portal de proveedor, abastecimiento y variantes provistas
+    ├── delivery/                        # Hoja de ruta y entrega de pedidos a domicilio
+    └── shared/                          # Componentes reutilizables entre vistas de rol (filtros, visores)
+```
+
+### 5.2. Componentes PWA y Modo Desconectado
 - **Service Worker (`ngsw-worker.js`):** Intercepta las solicitudes HTTP. Los recursos estáticos (HTML, JS, CSS, imágenes e iconos) se almacenan en el Cache Storage del navegador.
 - **Web App Manifest (`manifest.webmanifest`):** Permite la instalación nativa de la aplicación en el escritorio o pantalla de inicio del dispositivo móvil del cajero/cliente con modo `display: standalone`.
 - **Capa de Persistencia Local con IndexedDB:**
-  - Al iniciar sesión con red, el servicio `OfflineCatalogService` descarga el catálogo comprimido y lo guarda en el almacén de objetos `catalog_store`.
-  - Cuando el navegador emite el evento `navigator.onLine === false`, el servicio de ventas conmute automáticamente a `OfflinePosService`.
+  - Al iniciar sesión con red, el servicio `OfflineCatalogService` descarga el catálogo comprimido y lo guarda en el almacén de objetos `catalog_products` y `catalog_variants`.
+  - Cuando el navegador emite el evento `navigator.onLine === false`, el servicio de ventas conmuta automáticamente a `OfflinePosService`.
   - Las ventas se guardan en el almacén `pending_sales` con UUIDv4 local y estado `PENDIENTE_SYNC`.
-  - Un listener del evento `window.addEventListener('online', ...)` activa automáticamente la sincronización por lotes contra el endpoint de batch sync.
+  - Un listener del evento `window.addEventListener('online', ...)` activa automáticamente la sincronización por lotes contra el endpoint `/api/sales/offline/batch-sync`.
 
-### 5.2. Capa Visual y Diseño
-- **TailwindCSS 3.4+:** Clases utilitarias de alto rendimiento.
-- **Spartan UI / Lucide Icons:** Componentes accesibles, minimalistas y responsivos con feedback visual para el modo offline (insignia de estado de red en barra superior).
+### 5.3. Principios de Integración y Estado
+- **Gestión Reactiva con Signals y RxJS:** Uso de Angular Signals para el estado del carrito, sesión y banderas de conectividad (`isOnline`).
+- **Contratos HTTP Inmutables:** Los endpoints expuestos bajo `/api/*` garantizan impacto cero ante refactorizaciones internas del backend.
+- **TailwindCSS 3.4+ & Spartan UI:** Interfaz moderna y accesible con indicadores de estado de red en tiempo real.
 
 ---
 
 ## 6. Arquitectura de la Aplicación Móvil (Flutter)
 
-La aplicación móvil está estructurada en **Flutter** bajo un enfoque de **Clean Architecture**:
+La aplicación móvil reside en `mobile/` y está estructurada en **Flutter (Dart)** bajo un enfoque de **Clean Architecture** y módulos de dominio simétricos al backend:
 
+### 6.1. Estructura de Módulos (`mobile/lib/`)
 ```
 mobile/lib/
-├── core/
-│   ├── network/                       # Interceptor Dio con JWT y manejo offline
-│   ├── database/                      # SQLite OpenHelper (sqflite)
-│   └── theme/                         # Paleta y tipografías consistentes
-├── features/
-│   ├── auth/                          # Login multitenant y almacenamiento seguro
-│   ├── catalog/                       # Grilla facetada y visor offline
-│   ├── geolocation/                   # OpenStreetMap (flutter_map) + OpenRouteService
-│   ├── ar_fitting/                    # Probador virtual con Realidad Aumentada
-│   └── pos_offline/                   # Venta en efectivo offline y sincronización
+├── core/                                # Red (Dio con JWT interceptor), storage seguro, utilitarios
+├── database/                            # SQLite OpenHelper (sqflite) y esquemas locales
+├── shared/                              # Widgets compartidos (Botones, campos de texto, feedback)
+└── features/ (o modules/)
+    ├── m1_identity_profile/             # Autenticación multitenant, sesión y medidas del cliente
+    ├── m2_catalog_discovery/            # Catálogo móvil, búsqueda facetada y previsualización de prendas
+    ├── m3_inventory_lookup/             # Disponibilidad por sucursales en tiempo real
+    ├── m4_purchases_reservations/       # Carrito, reservas con temporizador y checkout
+    ├── m5_pos_offline_sync/             # POS offline en efectivo con UUIDv4 y cola de sincronización SQLite
+    ├── m6_geolocation_routes/           # Mapa OpenStreetMap (flutter_map) + OpenRouteService
+    ├── m7_ar_fitting/                   # Probador virtual con Realidad Aumentada
+    └── m8_smart_assistant/              # Asistente por voz Gemini RAG y notificaciones push FCM
 ```
 
-### 6.1. Persistencia Local con SQLite (`sqflite`)
+### 6.2. Persistencia Local con SQLite (`sqflite`)
 - El dispositivo almacena dos tablas locales primarias:
-  - `local_catalog`: Cache de productos y variantes con precios por talla.
-  - `local_offline_sales`: Cola transaccional de ventas realizadas en efectivo sin conexión con campo `uuid TEXT PRIMARY KEY`.
+  - `local_variants`: Caché de catálogo con productos, tallas, colores y precios para navegación desconectada.
+  - `local_offline_sales`: Cola transaccional de ventas realizadas en efectivo sin conexión con campo `operation_uuid TEXT PRIMARY KEY` y estado `PENDIENTE_SYNC`.
 
-### 6.2. Geolocalización Libre (OpenStreetMap + OpenRouteService)
-- Se sustituye Google Maps por **OpenStreetMap** mediante la librería `flutter_map` (libre de cuotas y API keys de pago restrictivas).
-- El cálculo de rutas óptimas hacia las sucursales del tenant se realiza invocando los endpoints REST de **OpenRouteService (ORS)**, renderizando polilíneas de navegación sobre el mapa en tiempo real.
+### 6.3. Geolocalización Libre (OpenStreetMap + OpenRouteService)
+- Se sustituye Google Maps por **OpenStreetMap** mediante la librería `flutter_map` (libre de cuotas restrictivas y 100% de código abierto).
+- El cálculo de rutas óptimas hacia las sucursales del tenant se realiza invocando la API REST de **OpenRouteService (ORS)**, renderizando polilíneas de navegación sobre el mapa en tiempo real.
 
-### 6.3. Probador Virtual (AR)
-- Módulo móvil que accede a la cámara del dispositivo y posiciona prendas 2D/3D escaladas sobre la silueta del cliente para evaluar combinación de color y proporciones.
+### 6.4. Probador Virtual (AR)
+- Módulo móvil que accede a la cámara del dispositivo y posiciona prendas 2D/3D escaladas sobre la silueta del cliente para evaluar combinación de color y proporciones antes de comprar.
 
 ---
 
@@ -265,3 +297,32 @@ mobile/lib/
 ### 7.3. Machine Learning No Supervisado: Segmentación de Clientes
 - **Objetivo:** Agrupar la base de clientes en segmentos accionables para marketing y mitigación de devoluciones.
 - **Algoritmo:** **K-Means Clustering** con 4 centroides óptimos (determinados mediante el método del codo sobre variables de Recencia, Frecuencia, Valor Monetario e Índice de Devoluciones).
+
+---
+
+## 8. Modelo de Seguridad, Token JWT y Matriz RBAC
+
+Tanto el Frontend Web como la App Móvil operan bajo autenticación **JWT sin estado (*Stateless*)** emitido tras validar credenciales contra `/api/auth/login`.
+
+### 8.1. Estructura Canónica del Token JWT
+```json
+{
+  "sub": "7a3b4c5d-0000-0000-0000-123456789abc",
+  "email": "cajero.central@fashionstore.com",
+  "rol": "cajero",
+  "branch_id": "8f2e1a3b-1111-2222-3333-444455556666",
+  "tenant_id": "00000000-0000-0000-0000-000000000001",
+  "exp": 1729550000
+}
+```
+
+### 8.2. Matriz de Autorización por Ámbito Operativo (RBAC)
+
+| Rol | Ámbito (*Scope*) | Permisos y Capacidades |
+| :--- | :--- | :--- |
+| **Superadministrador** | Global Multi-empresa | Registro y supervisión de tenants, gestión de planes SaaS (Básico/Pro) y auditoría global. |
+| **Administrador de Tienda** | Tenant Completo | Creación de sucursales (bajo límite de plan), gestión del catálogo general, visualización de reportes IA y balances. |
+| **Encargado de Sucursal** | Sucursal (`branch_id`) | Control de inventario físico local, solicitudes y aprobación de traspasos de ropa, atención y cancelación de reservas. |
+| **Cajero / Vendedor** | Sucursal (`branch_id`) | Facturación en mostrador (POS online/offline), cobro de diferencias en cambios de talla (CU19) y devoluciones (CU20). |
+| **Cliente** | Usuario (`sub`) | Exploración de catálogo, carrito de compra, pago digital con Stripe, reservas de stock y probador AR. |
+| **Proveedor** | Proveedor (`provider_id`) | Consulta de órdenes de abastecimiento y actualización de disponibilidad de prendas provistas. |
