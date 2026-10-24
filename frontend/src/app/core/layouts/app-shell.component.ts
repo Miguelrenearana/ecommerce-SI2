@@ -92,6 +92,8 @@ export class AppShellComponent {
 
   protected readonly userRoleLabel = computed(() => {
     switch (this.userRole()) {
+      case 'superadmin':
+        return 'Superadministrador Master';
       case 'administrador':
         return 'Administrador';
       case 'cliente':
@@ -110,6 +112,9 @@ export class AppShellComponent {
   });
 
   protected readonly userBranchLabel = computed(() => {
+    if (this.userRole() === 'superadmin') {
+      return 'Control Maestro SaaS';
+    }
     if (this.userRole() === 'administrador') {
       return 'Acceso global';
     }
@@ -124,6 +129,8 @@ export class AppShellComponent {
 
   protected readonly homeItem = computed(() => {
     switch (this.userRole()) {
+      case 'superadmin':
+        return { label: 'Tenants', route: '/app/superadmin/tenants', icon: 'lucideLayoutDashboard', exact: true };
       case 'administrador':
         return { label: 'Dashboard', route: '/app/admin', icon: 'lucideLayoutDashboard', exact: true };
       case 'cliente':
@@ -150,6 +157,15 @@ export class AppShellComponent {
 
   protected readonly sidebarSections = computed<SidebarSection[]>(() => {
     switch (this.userRole()) {
+      case 'superadmin':
+        return [
+          {
+            title: 'Plataforma SaaS Master',
+            items: [
+              { label: 'Empresas (Tenants)', route: '/app/superadmin/tenants', icon: 'lucideLayoutDashboard', exact: true },
+            ],
+          },
+        ];
       case 'administrador':
         return [
           {
@@ -162,13 +178,13 @@ export class AppShellComponent {
               { label: 'Ventas', route: '/app/admin/sales', icon: 'lucideShoppingCart' },
               { label: 'Usuarios', route: '/app/admin/user', icon: 'lucideUsers' },
               { label: 'Sucursales', route: '/app/admin/branch', icon: 'lucideLayoutDashboard' },
-               { label: 'Proveedores', route: '/app/admin/provider', icon: 'lucideUsers' },
-               { label: 'Solicitudes', route: '/app/admin/replenishment', icon: 'lucideClipboardList' },
+              { label: 'Proveedores', route: '/app/admin/provider', icon: 'lucideUsers' },
+              { label: 'Solicitudes', route: '/app/admin/replenishment', icon: 'lucideClipboardList' },
             ],
           },
         ];
       case 'proveedor':
-         return [{ title: 'Operación', items: [this.homeItem(), { label: 'Productos', route: '/app/proveedor/products', icon: 'lucidePackageSearch' }, { label: 'Solicitudes', route: '/app/proveedor/replenishment', icon: 'lucideClipboardList' }] }];
+        return [{ title: 'Operación', items: [this.homeItem(), { label: 'Productos', route: '/app/proveedor/products', icon: 'lucidePackageSearch' }, { label: 'Solicitudes', route: '/app/proveedor/replenishment', icon: 'lucideClipboardList' }] }];
       case 'cliente':
         return [
           {
@@ -190,9 +206,9 @@ export class AppShellComponent {
               this.homeItem(),
               { label: 'Reservas', route: '/app/encargado/reservations', icon: 'lucideCalendarDays' },
               { label: 'Inventario', route: '/app/encargado/inventory', icon: 'lucidePackageSearch' },
-               { label: 'Pedidos', route: '/app/encargado/orders', icon: 'lucideClipboardList' },
-               { label: 'Proveedores', route: '/app/encargado/providers', icon: 'lucideUsers' },
-               { label: 'Solicitudes', route: '/app/encargado/replenishment', icon: 'lucideClipboardList' },
+              { label: 'Pedidos', route: '/app/encargado/orders', icon: 'lucideClipboardList' },
+              { label: 'Proveedores', route: '/app/encargado/providers', icon: 'lucideUsers' },
+              { label: 'Solicitudes', route: '/app/encargado/replenishment', icon: 'lucideClipboardList' },
               { label: 'Promociones', route: '/app/encargado/promotions', icon: 'lucideTicket' },
               { label: 'Ventas', route: '/app/encargado/sales', icon: 'lucideShoppingCart' },
             ],
