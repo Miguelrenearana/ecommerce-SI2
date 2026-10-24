@@ -1,0 +1,77 @@
+/* ============================================================
+   ESTILOS DEDICADOS DEL HOMEPAGE SAAS - FASHIONSTORE
+   Paleta principal: #f8baa3 (Peach) | Títulos: Sifonn Pro | Texto: Montserrat
+   ============================================================ */
+
+:host {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  color: #1a1e24;
+  background-color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* Tipografías de marca */
+.font-title {
+  font-family: 'Sifonn Pro', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.font-body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Botón de marca #f8baa3 */
+.btn-brand {
+  background-color: #f8baa3;
+  color: #1e1b18;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.btn-brand:hover {
+  background-color: #f5a88e;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -6px rgba(248, 186, 163, 0.55);
+}
+
+.btn-brand-outline {
+  border: 1.5px solid #f8baa3;
+  color: #1e1b18;
+  background-color: transparent;
+  transition: all 0.25s ease;
+}
+
+.btn-brand-outline:hover {
+  background-color: rgba(248, 186, 163, 0.15);
+  border-color: #f5a88e;
+}
+
+/* Efectos de tarjeta */
+.card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.07);
+  border-color: #f8baa3;
+}
+
+/* Patrón sutil de fondo */
+.bg-grid-subtle {
+  background-image: radial-gradient(rgba(24, 28, 36, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Badge suave de marca */
+.badge-brand {
+  background-color: rgba(248, 186, 163, 0.22);
+  color: #a84b30;
+  border: 1px solid rgba(248, 186, 163, 0.5);
+}
+
+/* Transiciones de acordeón FAQ */
+.faq-content {
+  transition: max-height 0.3s ease-out, opacity 0.25s ease;
+}
