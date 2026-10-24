@@ -3,27 +3,26 @@
 ## Estado de Relevo Operativo al 24/10/2026
 
 ### 1. Avances Consolidados en esta Sesión
-1. **Reestructuración de Backend Completada (P1 a P6):**
-   - El backend fue migrado exitosamente desde *Package by Layer* a **Arquitectura por Paquetes de Dominio**.
-   - Desacoplados los archivos `__init__.py` raíz para evitar importaciones circulares.
-   - FastAPI compila con `compileall` (Exit Code 0) e inicializa **96 endpoints OpenAPI activos**.
-   - Todos los cambios están confirmados en la rama `dev-raysa` con los commits `b6b7c51`, `2bacc29`, `f9d48e2` y `91b3016`.
-2. **Definición Consolidada de 28 Casos de Uso (ICONIX):**
-   - Aprobada la lista maestra de **28 Casos de Uso** combinando 12 CU modificados del 1er parcial y 16 CU nuevos del 2do parcial.
-   - Incorporadas las políticas de negocio de la docente (Cambios de prenda con abono de diferencia de precio, Devoluciones con retención del 20-50% y reembolso del 50-80%, Despacho tras pago Stripe).
-   - Incorporado el aporte extra de geolocalización con **OpenStreetMap** en la aplicación móvil Flutter.
-3. **Instalación de Dependencias de Frontend:**
-   - Resuelto el conflicto de dependencias del frontend con `npm install --legacy-peer-deps`.
-4. **Infraestructura de Memoria Viva y Contexto Consolidado:**
-   - Creado [`AGENTS.md`](file:///c:/Users/PERSONAL/ecommerce-SI2/AGENTS.md) en la raíz del proyecto.
-   - Creados los 7 documentos maestros de contexto en la raíz de `docs/` (`PROJECT_CONTEXT.md`, `ACTORS_AND_USE_CASES.md`, `ARCHITECTURE.md`, `OFFLINE_AND_SYNC.md`, `BUSINESS_POLICIES.md`, `AI_AND_ML.md`, `PRESENTATIONS_ROADMAP.md`).
-   - [`docs/ARCHITECTURE.md`](file:///c:/Users/PERSONAL/ecommerce-SI2/docs/ARCHITECTURE.md) se consolida como la **Única Fuente de Verdad** de la arquitectura técnica (absorbiendo los detalles de directorios frontend/mobile y seguridad RBAC de `SISTEMA_ARQUITECTURA_ACTUAL.md`).
-   - Archivados en `docs/FIRST_PARTIAL/`: `DECISION_REESTRUCTURACION_PAQUETES.md`, `SISTEMA_ARQUITECTURA_ACTUAL.md` y `ARCHITECTURE_THEORY.md`, erradicando duplicidad documental en la raíz de `docs/`.
+1. **Persistencia Multitenant en PostgreSQL (Migración Alembic 0038):**
+   - Ejecutada exitosamente la migración `0038_add_saas_multitenant_tables.py`.
+   - Creadas las tablas `companies`, `plans` y `subscriptions` con índices y constraints de unicidad (`nit_rut`, `subdomain`).
+   - Agregada la clave foránea `tenant_id` a `users` y `branches`.
+   - Incorporado el valor `superadmin` al tipo enum `rolenum` en PostgreSQL.
+2. **Población de Datos Inicial (Seeders SaaS):**
+   - Ejecutado exitosamente [`backend/seed_saas.py`](file:///c:/Users/PERSONAL/ecommerce-SI2/backend/seed_saas.py).
+   - Sembrados los planes: `BASICO` (2 sucursales máx, sin IA) y `PROFESIONAL` (10 sucursales máx, con IA).
+   - Creado el Superadmin Global: `superadmin@fashionstore.com` (Clave: `SuperAdmin2026!`).
+   - Creado Tenant 1: "Boutique Elegance" (subdominio: `elegance`, Plan Pro, 2 sucursales, Admin: `admin@elegance.com` / `AdminElegance2026!`).
+   - Creado Tenant 2: "Moda Urbana" (subdominio: `modaurbana`, Plan Básico, 1 sucursal, Admin: `admin@modaurbana.com` / `AdminUrbana2026!`).
+3. **Backend y Aislamiento `p0_saas_plataforma`:**
+   - Modelos, schemas, servicios (`tenant_service.py`, `quota_service.py`) y routers montados en `backend/main.py`.
+4. **Frontend Master Portal (Superadmin - CU01 Completo):**
+   - Servicio [`company.service.ts`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/src/app/core/services/company.service.ts) y modelos de datos creados.
+   - Componentes creados: [`tenants-page.component.ts`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/src/app/features/superadmin/pages/tenants-page.component.ts) con KPIs, buscador en tiempo real, conmutador de estado activo/suspendido y modal de alta reactiva con asignación de plan.
+   - Enrutamiento integrado en `app.routes.ts` con `roleGuard(['superadmin'])` y enlace en sidebar de `AppShellComponent`.
+   - Botón de acceso rápido para desarrollo en `login-page.component.html`.
 
 ### 2. Próxima Tarea Inmediata (Presentación 1: 25/10/2026)
-* **Objetivo:** Implementar la base de **SaaS Multitenant** y el **Catálogo Offline** (10 Casos de Uso del Ciclo 1):
-  1. Crear el paquete `backend/app/packages/p0_saas_platform/` (Modelos `Company`, `Plan`, `Subscription` y servicio de validación de cuotas de sucursales).
-  2. Implementar middleware `tenant_context.py` en `backend/app/core/` para inyectar `tenant_id` y aislamiento por fila.
-  3. Crear migraciones Alembic agregando `tenant_id` a `users`, `branches`, `products`, `product_variants`.
-  4. Población de datos con 2 empresas de prueba independientes ("Boutique Elegance" y "Moda Urbana").
-  5. Configurar IndexedDB en Angular PWA (`idb.service.ts`) para caché local del catálogo.
+* **Objetivo:** Catálogo Offline (PWA + IndexedDB) y Reglas de Suscripción (CU02/CU04):
+  1. Configuración de Service Worker e IndexedDB (`idb.service.ts`) para el catálogo offline (CU08 y CU09).
+  2. Verificación de reglas comerciales de sucursales en backend y frontend (CU02/CU04).
