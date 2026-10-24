@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class RolEnum(str, Enum):
+    superadmin = "superadmin"
     administrador = "administrador"
     cliente = "cliente"
     proveedor = "proveedor"

@@ -68,8 +68,9 @@
 	--card-foreground: oklch(0.28 0.03 260);
 	--popover: oklch(1 0 0);
 	--popover-foreground: oklch(0.28 0.03 260);
-	--primary: oklch(0.74 0.09 12);
-	--primary-foreground: oklch(0.99 0 0);
+	--primary: #f8baa3;
+	--primary-hover: #f5a489;
+	--primary-foreground: #191c21;
 	--secondary: oklch(0.97 0.01 260);
 	--secondary-foreground: oklch(0.28 0.03 260);
 	--muted: oklch(0.975 0.004 260);
@@ -134,4 +135,23 @@ body {
 
 header {
 	color: var(--primary);
+}
+
+
+.btn-brand {
+  background-color: #f8baa3;
+  color: #191c21;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.btn-brand:hover:not(:disabled) {
+  background-color: #f5a489;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -6px rgba(248, 186, 163, 0.55);
+}
+
+.btn-brand:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

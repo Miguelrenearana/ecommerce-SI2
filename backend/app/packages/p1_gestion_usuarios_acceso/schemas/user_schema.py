@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     gender: GenderEnum
+    tenant_id: UUID | None = None
     branch_id: UUID | None = None
 
 
@@ -19,6 +20,7 @@ class AdminUserCreate(BaseModel):
     password: str = Field(min_length=8)
     gender: GenderEnum
     rol: RolEnum
+    tenant_id: UUID | None = None
     branch_id: UUID | None = None
     is_active: bool = True
 
@@ -37,6 +39,7 @@ class UserOut(BaseModel):
     email: EmailStr
     gender: GenderEnum
     rol: RolEnum
+    tenant_id: UUID | None = None
     branch_id: UUID | None = None
     is_active: bool
 
@@ -51,6 +54,7 @@ class UserRead(BaseModel):
     email: EmailStr
     gender: GenderEnum
     rol: RolEnum
+    tenant_id: UUID | None = None
     branch_id: UUID | None = None
     is_active: bool
 
@@ -89,3 +93,8 @@ class UserProfileUpdate(BaseModel):
     name: str
     email: EmailStr
     gender: GenderEnum
+
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str

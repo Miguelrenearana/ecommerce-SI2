@@ -3,18 +3,24 @@
 ## Tareas Inmediatas de Implementación (Presentación 1: 25/10/2026)
 
 ### Hito 1: Núcleo SaaS Multitenant y Aislamiento por Empresa
-1. **Crear `backend/app/packages/p0_saas_platform/`:**
-   - [ ] Modelos SQLAlchemy: `Company`, `Plan`, `Subscription`.
-   - [ ] Schemas Pydantic: `CompanyCreate`, `CompanyRead`, `PlanRead`, `SubscriptionCreate`.
-   - [ ] Servicios: `tenant_service.py` (crear empresa y administrador inicial) y `quota_service.py` (validar límite de sucursales).
-   - [ ] Router `p0_router`: Montar `/api/saas/companies` y `/api/saas/plans`.
+1. **Paquete `backend/app/packages/p0_saas_plataforma/`:**
+   - [x] Modelos SQLAlchemy: `Company`, `Plan`, `Subscription`.
+   - [x] Schemas Pydantic: `CompanyCreate`, `CompanyRead`, `PlanRead`, `SubscriptionCreate`.
+   - [x] Servicios: `tenant_service.py` (crear empresa y administrador inicial) y `quota_service.py` (validar límite de sucursales).
+   - [x] Router `p0_router`: Montar `/api/saas/companies`, `/api/saas/plans` y `/api/saas/subscriptions` en `main.py`.
 2. **Implementar Aislamiento por Tenant:**
-   - [ ] Crear `backend/app/core/tenant_context.py` con dependencia FastAPI para resolver `tenant_id`.
-   - [ ] Añadir columna `tenant_id` a `users`, `branches`, `products`, `product_variants`.
-   - [ ] Actualizar login JWT en `p1_gestion_usuarios_acceso/routes/auth.py` para emitir token con claim `tenant_id`.
-3. **Población de Datos Inicial (Seeders):**
-   - [ ] Script de seed con 2 planes: Básico (máx. 2 sucursales) y Profesional (máx. 10 sucursales).
-   - [ ] Alta de 2 empresas de prueba independientes: "Boutique Elegance" y "Moda Urbana" con sus respectivos administradores.
+   - [x] Crear `backend/app/core/tenant_context.py` con dependencias FastAPI para resolver `tenant_id`.
+   - [x] Añadir columna `tenant_id` a `users` y `branches`.
+   - [x] Actualizar login JWT en `p1_gestion_usuarios_acceso/routes/auth.py` para emitir token con claim `tenant_id`.
+3. **Persistencia y Población de Datos Inicial (Migración & Seeders):**
+   - [x] Crear migración Alembic `0038_add_saas_multitenant_tables.py` y ejecutar `alembic upgrade head`.
+   - [x] Script de seed con 2 planes: Básico (máx. 2 sucursales) y Profesional (máx. 10 sucursales).
+   - [x] Alta de 2 empresas de prueba independientes: "Boutique Elegance" y "Moda Urbana" con sus respectivos administradores y sucursales.
+   - [x] Alta del Superadministrador global (`superadmin@fashionstore.com`).
+4. **Frontend Master Portal (Superadmin - CU01 Completado):**
+   - [x] Servicio Angular para consumir API de tenants (`/api/saas/companies`).
+   - [x] Vista en Angular para listado y alta reactiva de empresas tenants (CU01).
+   - [x] Asignación de plan de suscripción comercial (CU02).
 
 ### Hito 2: Persistencia Local del Catálogo (PWA e IndexedDB)
 1. **Frontend PWA:**

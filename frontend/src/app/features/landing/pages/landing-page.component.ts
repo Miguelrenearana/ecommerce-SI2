@@ -33,8 +33,8 @@ export class LandingPageComponent {
   readonly images = {
     logoIcon: '/assets/logo-fashionstore.png',
     logoName: '/assets/logo-name.png',
-    heroStore: '/assets/clothes-perch-.avif',
-    loginFashion: '/assets/images/login-fashion.png',
+    heroStore: '/assets/clothes-perch-cream.jpg',
+    tryOnStore: '/assets/women-store.jpg',
   };
 
   // FAQ reactivo con estado abierto/cerrado

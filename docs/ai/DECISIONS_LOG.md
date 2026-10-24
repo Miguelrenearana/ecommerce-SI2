@@ -41,3 +41,8 @@
 * **Decisión:** Adopción del sistema de memoria viva en `docs/ai/` y de bitácoras obligatorias en `docs/ai/sessions/`.
 * **Motivo:** Asegurar la continuidad operativa de los agentes de IA y los desarrolladores entre sesiones, registrando bitácoras técnicas únicamente cuando se modifique código o persistencia.
 * **Impacto:** Creación de `AGENTS.md` y estructura de relevos `HANDOFF_LATEST.md`, `CURRENT_STATE.md` e `IMPLEMENTATION_PHASES.md`.
+
+### Registro 09: 2026-10-24
+* **Decisión:** Estandarización del nombre del paquete SaaS en español: `p0_saas_plataforma`.
+* **Motivo:** Mantener coherencia idiomática absoluta con el resto de paquetes de dominio del backend (`p1_gestion_usuarios_acceso`, `p2_gestion_productos_catalogo`, etc.).
+* **Impacto:** Creación del paquete `backend/app/packages/p0_saas_plataforma/` conteniendo los modelos `Company`, `Plan`, `Subscription`, esquemas Pydantic v2, servicios de tenant y validación de cuotas (`quota_service.py`), router `p0_router` montado en `backend/main.py`, y dependencia de contexto multitenant en `backend/app/core/tenant_context.py`.

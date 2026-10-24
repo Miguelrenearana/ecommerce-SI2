@@ -234,6 +234,24 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'superadmin',
+        canActivate: [roleGuard(['superadmin'])],
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: 'tenants',
+          },
+          {
+            path: 'tenants',
+            loadComponent: () =>
+              import('./features/superadmin/pages/tenants-page.component').then(
+                (m) => m.TenantsPageComponent,
+              ),
+          },
+        ],
+      },
     ],
   },
   {

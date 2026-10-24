@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.packages.p0_saas_plataforma.router import p0_router
 from app.packages.p1_gestion_usuarios_acceso.router import p1_router
 from app.packages.p2_gestion_productos_catalogo.router import p2_router
 from app.packages.p3_gestion_inventario_disponibilidad.router import p3_router
@@ -51,7 +52,8 @@ async def lifespan(_: FastAPI):
         daily_task.cancel()
         await asyncio.gather(task, daily_task, return_exceptions=True)
 
-app = FastAPI(title="ACI", lifespan=lifespan)
+
+app = FastAPI(title="FashionStore SaaS Multitenant API", lifespan=lifespan)
 
 # CORS
 app.add_middleware(
@@ -62,25 +64,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers estructurados por paquetes
+# Routers estructurados por paquetes de dominio (ICONIX)
 api_router = APIRouter(prefix="/api")
 
-# Paquete 1: Gestión de usuarios y acceso (CU01–CU06)
+# Paquete 0: Plataforma SaaS, Gestión de Tenants y Suscripciones (CU01–CU02)
+api_router.include_router(p0_router)
+
+# Paquete 1: Gestión de usuarios y acceso (CU03–CU05)
 api_router.include_router(p1_router)
 
-# Paquete 2: Gestión de productos y catálogo (CU07–CU10)
+# Paquete 2: Gestión de productos y catálogo (CU06–CU07)
 api_router.include_router(p2_router)
 
-# Paquete 3: Gestión de inventario y disponibilidad (CU11–CU13)
+# Paquete 3: Gestión de inventario y disponibilidad (CU08–CU11)
 api_router.include_router(p3_router)
 
-# Paquete 4: Gestión de compras y reservas (CU14–CU16, CU25)
+# Paquete 4: Gestión de compras y reservas (CU12–CU14)
 api_router.include_router(p4_router)
 
-# Paquete 5: Ventas y POS (CU17–CU18)
+# Paquete 5: Ventas, POS, Sincronización y Políticas (CU15–CU20)
 api_router.include_router(p5_router)
 
-# Paquete 6: Inteligencia y analítica (CU19–CU24)
+# Paquete 6: Inteligencia, analítica y visión móvil (CU21–CU28)
 api_router.include_router(p6_router)
 
 app.include_router(api_router)

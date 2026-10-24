@@ -2,6 +2,8 @@ import { RolUsuario } from '../../features/shared/models/auth.model';
 
 export function getDefaultRouteForRole(rol: RolUsuario | undefined): string {
   switch (rol) {
+    case 'superadmin':
+      return '/app/superadmin/tenants';
     case 'administrador':
       return '/app/admin';
     case 'cliente':

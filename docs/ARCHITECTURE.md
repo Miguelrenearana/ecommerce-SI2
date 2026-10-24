@@ -28,7 +28,7 @@ flowchart TB
     end
 
     subgraph Dominio_Backend["Capa de Dominio y Servicios (FastAPI / Deep Packages)"]
-        P0["p0_saas_platform\n(Tenants, Subscriptions, Branch Quotas)"]
+        P0["p0_saas_plataforma\n(Tenants, Subscriptions, Branch Quotas)"]
         P1["p1_gestion_usuarios_acceso\n(Users, Roles, Auth, Sessions)"]
         P2["p2_gestion_productos_catalogo\n(Products, Variants, Size Prices)"]
         P3["p3_gestion_inventario_disponibilidad\n(Branch Inventory, Transfers, Offline Pack)"]
@@ -81,13 +81,14 @@ El backend se organiza en 7 paquetes de dominio desacoplados. Cada paquete imple
 
 ```
 backend/app/packages/
-├── p0_saas_platform/                  # Gestión SaaS, Planes y Tenancy
+├── p0_saas_plataforma/                # Gestión SaaS, Planes y Tenancy
 │   ├── __init__.py                    # Limpio (sin re-exportes pesados)
-│   ├── router.py                      # Endpoints: /api/companies, /api/subscriptions
-│   ├── service.py                     # Reglas de negocio de límites de sucursales
-│   ├── repository.py                  # Consultas SQLAlchemy a tablas SaaS
-│   ├── models.py                      # Company, Subscription, Plan
-│   └── schemas.py                     # Pydantic v2 schemas
+│   ├── router.py                      # Endpoints: /api/saas/companies, /api/saas/subscriptions, /api/saas/plans
+│   ├── service.py                     # Reglas de negocio de límites de sucursales y aprovisionamiento
+│   ├── models/                        # Company, Subscription, Plan
+│   ├── schemas/                       # Pydantic v2 schemas
+│   ├── services/                      # tenant_service, quota_service
+│   └── routes/                        # company_routes, plan_routes, subscription_routes
 ├── p1_gestion_usuarios_acceso/        # Autenticación y Control de Acceso
 │   ├── router.py                      # Endpoints: /api/auth, /api/users, /api/branches
 │   ├── service.py                     # Lógica de login JWT con claim tenant_id
@@ -136,7 +137,7 @@ Para erradicar fallos de importación circular durante el arranque de FastAPI:
 - Los archivos `__init__.py` de los paquetes de dominio se mantienen **vacíos o con metadatos mínimos**.
 - `backend/main.py` registra los routers importando explícitamente desde `.router` de cada paquete:
   ```python
-  from app.packages.p0_saas_platform.router import router as p0_router
+  from app.packages.p0_saas_plataforma.router import p0_router
   from app.packages.p1_gestion_usuarios_acceso.router import router as p1_router
   from app.packages.p2_gestion_productos_catalogo.router import router as p2_router
   from app.packages.p3_gestion_inventario_disponibilidad.router import router as p3_router

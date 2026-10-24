@@ -23,6 +23,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         data={
             "sub": str(db_user.id),
             "rol": db_user.rol.value,
+            "tenant_id": str(db_user.tenant_id) if db_user.tenant_id else None,
             "branch_id": str(db_user.branch_id) if db_user.branch_id else None,
         }
     )
@@ -59,10 +60,17 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="El usuario no pertenece al rol solicitado",
         )
+    if user.tenant_id and user.company and user.company.status != "ACTIVO":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="La empresa a la que pertenece esta cuenta está suspendida",
+        )
+
     access_token = create_access_token(
         data={
             "sub": str(user.id),
             "rol": user.rol.value,
+            "tenant_id": str(user.tenant_id) if user.tenant_id else None,
             "branch_id": str(user.branch_id) if user.branch_id else None,
         }
     )

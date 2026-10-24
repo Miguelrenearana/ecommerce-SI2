@@ -1,4 +1,4 @@
-export type RolUsuario = 'administrador' | 'cliente' | 'proveedor' | 'encargado' | 'cajero' | 'delivery';
+export type RolUsuario = 'superadmin' | 'administrador' | 'cliente' | 'proveedor' | 'encargado' | 'cajero' | 'delivery';
 
 export type GeneroUsuario = 'masculino' | 'femenino';
 
@@ -8,6 +8,7 @@ export interface UsuarioAuth {
   email: string;
   gender: GeneroUsuario;
   rol: RolUsuario;
+  tenant_id?: string | null;
   branch_id: string | null;
   is_active?: boolean;
 }

@@ -1,3 +1,145 @@
+# ------------------------------------------------------------------------------
+# Orchestrator & Agent Tools
+# ------------------------------------------------------------------------------
 .atl/
 .codegraph/
 odd/
+
+# ------------------------------------------------------------------------------
+# Operating System & IDEs
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~
+
+# VS Code (preserve shared settings/tasks if present, ignore personal state)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# ------------------------------------------------------------------------------
+# Node.js & Frontend (Angular PWA)
+# ------------------------------------------------------------------------------
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+.angular/
+**/.angular/
+dist/
+**/dist/
+out-tsc/
+**/out-tsc/
+bazel-out/
+/coverage
+**/coverage/
+__screenshots__/
+
+# ------------------------------------------------------------------------------
+# Python & Backend (FastAPI / Alembic)
+# ------------------------------------------------------------------------------
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+venv/
+.venv/
+env/
+**/venv/
+**/.venv/
+**/env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Coverage
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+**/.mypy_cache/
+.ruff_cache/
+**/.ruff_cache/
+htmlcov/
+**/htmlcov/
+.coverage
+.coverage.*
+
+# Python packaging & builds
+build/
+*.egg-info/
+.eggs/
+
+# ------------------------------------------------------------------------------
+# Flutter & Mobile (Dart / Android / iOS)
+# ------------------------------------------------------------------------------
+.dart_tool/
+**/.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Android Studio & Gradle
+mobile/android/app/debug/
+mobile/android/app/profile/
+mobile/android/app/release/
+mobile/android/.gradle/
+mobile/android/captures/
+mobile/android/gradlew
+mobile/android/gradlew.bat
+mobile/android/local.properties
+*.iml
+
+# iOS
+mobile/ios/Flutter/Generated.xcconfig
+mobile/ios/Flutter/flutter_export_environment.sh
+mobile/ios/Flutter/App.framework
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/profile
+mobile/ios/debug
+mobile/ios/release
+
+# ------------------------------------------------------------------------------
+# Environment Variables, Secrets & Database dumps
+# ------------------------------------------------------------------------------
+.env
+.env.*
+.secrets/
+**/.secrets/
+*.sqlite
+*.sqlite3
+*.db
+google-services.json
+firebase-adminsdk*.json
+
+# ------------------------------------------------------------------------------
+# General Logs
+# ------------------------------------------------------------------------------
+*.log
+logs/
