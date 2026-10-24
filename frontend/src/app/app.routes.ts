@@ -243,7 +243,10 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'app',
+    loadComponent: () =>
+      import('./features/landing/pages/landing-page.component').then(
+        (m) => m.LandingPageComponent,
+      ),
   },
   {
     path: '**',
