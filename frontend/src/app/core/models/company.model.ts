@@ -2,6 +2,7 @@ export interface Plan {
   id: string;
   name: string;
   code: 'basic' | 'pro' | string;
+  description?: string | null;
   max_branches: number;
   has_ai_access: boolean;
   price_monthly: number;
@@ -29,6 +30,8 @@ export interface Company {
   phone?: string | null;
   created_at?: string;
   updated_at?: string;
+  current_plan_name?: string;
+  current_plan_code?: string;
 }
 
 export interface CompanyCreateDto {

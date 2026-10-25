@@ -41,7 +41,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     )
 
 
-@router.post("/login", summary="Inicio de sesión por rol")
+@router.post("/login", summary="Inicio de sesión por credenciales")
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
     normalized_email = user_data.email.strip().lower()
     user = db.query(User).filter(User.email == normalized_email).first()
@@ -55,7 +55,7 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Usuario inactivo",
         )
-    if user.rol != user_data.rol:
+    if user_data.rol is not None and user.rol != user_data.rol:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="El usuario no pertenece al rol solicitado",

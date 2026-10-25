@@ -9,11 +9,11 @@ Documento oficial de control de avance de los **28 Casos de Uso** organizados po
 
 - [x] **CU01 – Gestionar Empresas Contratantes (Tenants)** [2do Parcial - NUEVO]
   - *Criterio de éxito:* Superadmin da de alta una empresa cliente con Razón Social, NIT y Administrador inicial.
-- [ ] **CU02 – Gestionar Planes de Suscripción y Límites Comerciales** [2do Parcial - NUEVO]
+- [x] **CU02 – Gestionar Planes de Suscripción y Límites Comerciales** [2do Parcial - NUEVO]
   - *Criterio de éxito:* Planes Básico (máx. 2 sucursales) y Profesional (máx. 10 sucursales) configurables.
 - [ ] **CU03 – Autenticar Usuario en Contexto Multitenant** [1er Parcial - MODIFICADO]
   - *Criterio de éxito:* Token JWT inyecta obligatoriamente `tenant_id`, `role` y `branch_id`.
-- [ ] **CU04 – Gestionar Sucursales bajo Reglas de Suscripción** [1er Parcial - MODIFICADO]
+- [x] **CU04 – Gestionar Sucursales bajo Reglas de Suscripción** [1er Parcial - MODIFICADO]
   - *Criterio de éxito:* El backend rechaza la creación de una 3ra sucursal si la empresa tiene Plan Básico.
 - [ ] **CU05 – Consultar y Actualizar Perfil de Usuario** [1er Parcial - MODIFICADO]
   - *Criterio de éxito:* Edición de datos del cliente/empleado aislada por tenant.

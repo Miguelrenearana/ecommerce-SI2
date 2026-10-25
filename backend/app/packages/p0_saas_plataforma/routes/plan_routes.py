@@ -11,11 +11,25 @@ router = APIRouter(prefix="/saas/plans", tags=["SaaS Plans"])
 
 @router.get("", summary="Listar planes comerciales disponibles")
 def list_plans(db: Session = Depends(get_db)):
-    plans = db.query(Plan).filter(Plan.is_active.is_(True)).all()
+    plans = db.query(Plan).filter(Plan.is_active.is_(True)).order_by(Plan.price_monthly.asc()).all()
     # Si la base de datos no tiene planes aún, sembramos los dos oficiales de cátedra
     if not plans:
-        basic = Plan(name="BASICO", code="basic", max_branches=2, has_ai_access=False, price_monthly=29.00)
-        pro = Plan(name="PROFESIONAL", code="pro", max_branches=10, has_ai_access=True, price_monthly=99.00)
+        basic = Plan(
+            name="BASICO",
+            code="basic",
+            description="Plan esencial para boutiques individuales. Incluye hasta 2 sucursales activas y gestión estándar de inventario y ventas POS.",
+            max_branches=2,
+            has_ai_access=False,
+            price_monthly=29.00,
+        )
+        pro = Plan(
+            name="PROFESIONAL",
+            code="pro",
+            description="Plan avanzado para marcas en expansión. Incluye hasta 10 sucursales activas, analítica predictiva y asistente de voz con Gemini IA.",
+            max_branches=10,
+            has_ai_access=True,
+            price_monthly=99.00,
+        )
         db.add_all([basic, pro])
         db.commit()
         plans = [basic, pro]
@@ -41,6 +55,7 @@ def create_plan(plan_in: PlanCreate, db: Session = Depends(get_db)):
     plan = Plan(
         name=plan_in.name.strip(),
         code=plan_in.code.strip().lower(),
+        description=plan_in.description,
         max_branches=plan_in.max_branches,
         has_ai_access=plan_in.has_ai_access,
         price_monthly=plan_in.price_monthly,

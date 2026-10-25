@@ -1,43 +1,147 @@
+from uuid import UUID
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
+from app.packages.p0_saas_plataforma.models.subscription import Subscription
+from app.packages.p0_saas_plataforma.models.plan import Plan
 from app.packages.p1_gestion_usuarios_acceso.models.branch import Branch
 from app.packages.p1_gestion_usuarios_acceso.models.user import User
-from app.packages.p1_gestion_usuarios_acceso.schemas.branch_schema import BranchCreate
+from app.packages.p1_gestion_usuarios_acceso.schemas.branch_schema import (
+    BranchCreate,
+    BranchUpdate,
+)
 
 
-def create_branch(db: Session, branch: BranchCreate) -> Branch:
-    db_branch = Branch(name=branch.name, city=branch.city, is_default=branch.is_default, is_active=True)
+def get_branch_quota(db: Session, tenant_id: UUID) -> dict:
+    """
+    Obtiene el uso y límite de sucursales activas según el plan de suscripción del tenant.
+    """
+    subscription = (
+        db.query(Subscription)
+        .filter(Subscription.company_id == tenant_id, Subscription.status == "ACTIVA")
+        .first()
+    )
+
+    if not subscription or not subscription.plan:
+        # Si por alguna contingencia no tuviese plan, asumimos fallback restrictivo
+        plan_name = "Sin Plan"
+        plan_code = "NONE"
+        max_branches = 0
+    else:
+        plan_name = subscription.plan.name
+        plan_code = subscription.plan.code
+        max_branches = subscription.plan.max_branches
+
+    active_branches = (
+        db.query(Branch)
+        .filter(Branch.tenant_id == tenant_id, Branch.is_active.is_(True))
+        .count()
+    )
+
+    remaining = max(0, max_branches - active_branches)
+    can_create = active_branches < max_branches
+
+    return {
+        "plan_name": plan_name,
+        "plan_code": plan_code,
+        "max_branches": max_branches,
+        "current_active_branches": active_branches,
+        "remaining_slots": remaining,
+        "can_create_branch": can_create,
+    }
+
+
+def validate_branch_quota(db: Session, tenant_id: UUID) -> None:
+    """
+    Valida si el tenant puede crear o activar una nueva sucursal.
+    Lanza ValueError si se excede la cuota permitida por el plan.
+    """
+    quota = get_branch_quota(db, tenant_id)
+    if not quota["can_create_branch"]:
+        raise ValueError(
+            f"Límite de sucursales alcanzado ({quota['current_active_branches']}/{quota['max_branches']}). "
+            f"Tu plan actual '{quota['plan_name']}' no permite más sucursales activas. "
+            "Actualiza al Plan Profesional para habilitar hasta 10 sucursales."
+        )
+
+
+def create_branch(db: Session, branch: BranchCreate, tenant_id: UUID | None = None) -> Branch:
+    if tenant_id and branch.is_active:
+        validate_branch_quota(db, tenant_id)
+
+    if branch.is_default and tenant_id:
+        # Desmarcar otras sucursales por defecto del tenant
+        db.query(Branch).filter(Branch.tenant_id == tenant_id, Branch.is_default.is_(True)).update(
+            {Branch.is_default: False}, synchronize_session=False
+        )
+
+    db_branch = Branch(
+        name=branch.name,
+        city=branch.city,
+        address=branch.address,
+        phone=branch.phone,
+        opening_hours=branch.opening_hours,
+        latitude=branch.latitude,
+        longitude=branch.longitude,
+        is_default=branch.is_default,
+        is_active=branch.is_active,
+        tenant_id=tenant_id,
+    )
     db.add(db_branch)
     db.commit()
     db.refresh(db_branch)
     return db_branch
 
 
-def get_branches(db: Session, branch_id=None):
+def get_branches(db: Session, branch_id: UUID | None = None, tenant_id: UUID | None = None) -> list[Branch]:
     query = select(Branch)
+    if tenant_id is not None:
+        query = query.where(Branch.tenant_id == tenant_id)
     if branch_id is not None:
         query = query.where(Branch.id == branch_id)
     result = db.execute(query.order_by(Branch.name.asc()))
-    return result.scalars().all()
+    return list(result.scalars().all())
 
 
-def update_branch(db: Session, branch_id, update_data) -> Branch | None:
-    branch = db.query(Branch).filter(Branch.id == branch_id).first()
+def update_branch(db: Session, branch_id: UUID, update_data: BranchUpdate, tenant_id: UUID | None = None) -> Branch | None:
+    query = db.query(Branch).filter(Branch.id == branch_id)
+    if tenant_id is not None:
+        query = query.filter(Branch.tenant_id == tenant_id)
+    branch = query.first()
     if not branch:
         return None
 
+    # Si se está activando una sucursal que estaba inactiva, validar cuota
+    if update_data.is_active and not branch.is_active and tenant_id:
+        validate_branch_quota(db, tenant_id)
+
+    if update_data.is_default and tenant_id:
+        db.query(Branch).filter(
+            Branch.tenant_id == tenant_id,
+            Branch.id != branch_id,
+            Branch.is_default.is_(True),
+        ).update({Branch.is_default: False}, synchronize_session=False)
+
     branch.name = update_data.name
     branch.city = update_data.city
+    branch.address = update_data.address
+    branch.phone = update_data.phone
+    branch.opening_hours = update_data.opening_hours
+    branch.latitude = update_data.latitude
+    branch.longitude = update_data.longitude
     branch.is_default = update_data.is_default
     branch.is_active = update_data.is_active
+
     db.commit()
     db.refresh(branch)
     return branch
 
 
-def delete_branch(db: Session, branch_id) -> bool:
-    branch = db.query(Branch).filter(Branch.id == branch_id).first()
+def delete_branch(db: Session, branch_id: UUID, tenant_id: UUID | None = None) -> bool:
+    query = db.query(Branch).filter(Branch.id == branch_id)
+    if tenant_id is not None:
+        query = query.filter(Branch.tenant_id == tenant_id)
+    branch = query.first()
     if not branch:
         return False
 
@@ -51,10 +155,16 @@ def delete_branch(db: Session, branch_id) -> bool:
         raise ValueError("No se pudo eliminar la sucursal")
 
 
-def set_branch_active(db: Session, branch_id, is_active: bool) -> Branch | None:
-    branch = db.query(Branch).filter(Branch.id == branch_id).first()
+def set_branch_active(db: Session, branch_id: UUID, is_active: bool, tenant_id: UUID | None = None) -> Branch | None:
+    query = db.query(Branch).filter(Branch.id == branch_id)
+    if tenant_id is not None:
+        query = query.filter(Branch.tenant_id == tenant_id)
+    branch = query.first()
     if not branch:
         return None
+
+    if is_active and not branch.is_active and tenant_id:
+        validate_branch_quota(db, tenant_id)
 
     branch.is_active = is_active
     db.commit()

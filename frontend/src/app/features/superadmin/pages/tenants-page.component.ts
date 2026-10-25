@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { toast } from '@spartan-ng/brain/sonner';
 
 import { CompanyService } from '../../../core/services/company.service';
-import { Company } from '../../../core/models/company.model';
+import { Company, Subscription } from '../../../core/models/company.model';
 import { TenantFormModalComponent } from '../components/tenant-form-modal.component';
+import { SubscriptionModalComponent } from '../components/subscription-modal.component';
 
 @Component({
   selector: 'app-tenants-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, TenantFormModalComponent],
+  imports: [CommonModule, FormsModule, TenantFormModalComponent, SubscriptionModalComponent],
   template: `
     <div class="space-y-8 p-6 lg:p-10 max-w-7xl mx-auto">
       
@@ -18,20 +19,20 @@ import { TenantFormModalComponent } from '../components/tenant-form-modal.compon
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Portal Master SaaS • CU01
+            Portal Master SaaS • CU01 & CU02
           </span>
           <h1 class="text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 mt-1">
-            Empresas Contratantes
+            Empresas Contratantes y Planes
           </h1>
           <p class="text-sm text-slate-500 mt-1">
-            Gestión centralizada de inquilinos (*tenants*), planes de suscripción y aislamiento lógico.
+            Gestión centralizada de inquilinos (*tenants*), límites comerciales de sucursales y cuotas de suscripción.
           </p>
         </div>
 
         <button
           type="button"
           (click)="isModalOpen.set(true)"
-          class="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-colors"
+          class="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-colors cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -88,7 +89,7 @@ import { TenantFormModalComponent } from '../components/tenant-form-modal.compon
           <button
             type="button"
             (click)="statusFilter.set('all')"
-            class="rounded-md px-3 py-1.5 transition-colors"
+            class="rounded-md px-3 py-1.5 transition-colors cursor-pointer"
             [ngClass]="statusFilter() === 'all' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'"
           >
             Todas ({{ totalTenants() }})
@@ -96,44 +97,35 @@ import { TenantFormModalComponent } from '../components/tenant-form-modal.compon
           <button
             type="button"
             (click)="statusFilter.set('ACTIVO')"
-            class="rounded-md px-3 py-1.5 transition-colors"
+            class="rounded-md px-3 py-1.5 transition-colors cursor-pointer"
             [ngClass]="statusFilter() === 'ACTIVO' ? 'bg-white text-emerald-800 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'"
           >
-            Activas
+            Activas ({{ activeTenants() }})
           </button>
           <button
             type="button"
             (click)="statusFilter.set('SUSPENDIDO')"
-            class="rounded-md px-3 py-1.5 transition-colors"
+            class="rounded-md px-3 py-1.5 transition-colors cursor-pointer"
             [ngClass]="statusFilter() === 'SUSPENDIDO' ? 'bg-white text-rose-800 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'"
           >
-            Suspendidas
+            Suspendidas ({{ suspendedTenants() }})
           </button>
         </div>
       </div>
 
-      <!-- TABLA DE TENANTS -->
-      <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
+      <!-- TABLA DE EMPRESAS Y PLANES -->
+      <div class="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
         @if (loading()) {
-          <div class="flex flex-col items-center justify-center p-12 text-slate-400">
-            <span class="inline-block w-6 h-6 border-2 border-slate-300 border-t-slate-800 rounded-full animate-spin"></span>
-            <p class="text-sm mt-3">Cargando empresas registradas...</p>
+          <div class="p-12 text-center text-sm text-slate-500">
+            <svg class="animate-spin h-6 w-6 mx-auto mb-2 text-slate-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            Cargando empresas registradas...
           </div>
         } @else if (filteredCompanies().length === 0) {
-          <div class="flex flex-col items-center justify-center p-12 text-center">
-            <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-            <h3 class="text-sm font-semibold text-slate-900">No se encontraron empresas</h3>
-            <p class="text-xs text-slate-500 mt-1 max-w-sm">
-              @if (searchQuery()) {
-                No hay resultados coincidentes con "{{ searchQuery() }}".
-              } @else {
-                Aún no has registrado empresas clientes. Pulsa "Registrar Empresa" para dar de alta la primera.
-              }
-            </p>
+          <div class="p-12 text-center text-sm text-slate-500">
+            No se encontraron empresas contratantes registradas o con el filtro seleccionado.
           </div>
         } @else {
           <div class="overflow-x-auto">
@@ -145,6 +137,7 @@ import { TenantFormModalComponent } from '../components/tenant-form-modal.compon
                   <th scope="col" class="px-3 py-3.5">NIT / RUT</th>
                   <th scope="col" class="px-3 py-3.5">Contacto</th>
                   <th scope="col" class="px-3 py-3.5">Estado</th>
+                  <th scope="col" class="px-3 py-3.5">Plan & Suscripción</th>
                   <th scope="col" class="py-3.5 pl-3 pr-6 text-right">Acciones</th>
                 </tr>
               </thead>
@@ -192,6 +185,20 @@ import { TenantFormModalComponent } from '../components/tenant-form-modal.compon
                       }
                     </td>
 
+                    <!-- Plan & Suscripción (CU02) -->
+                    <td class="px-3 py-4">
+                      <button
+                        type="button"
+                        (click)="openSubscriptionModal(company)"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200/80 transition-colors cursor-pointer"
+                      >
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        <span>Gestionar Plan</span>
+                      </button>
+                    </td>
+
                     <!-- Acciones -->
                     <td class="py-4 pl-3 pr-6 text-right">
                       @if (company.status === 'ACTIVO') {
@@ -199,7 +206,7 @@ import { TenantFormModalComponent } from '../components/tenant-form-modal.compon
                           type="button"
                           [disabled]="togglingId() === company.id"
                           (click)="toggleStatus(company, 'SUSPENDIDO')"
-                          class="text-xs font-medium text-rose-600 hover:text-rose-800 disabled:opacity-50 transition-colors"
+                          class="text-xs font-medium text-rose-600 hover:text-rose-800 disabled:opacity-50 transition-colors cursor-pointer"
                         >
                           @if (togglingId() === company.id) {
                             Actualizando...
@@ -212,7 +219,7 @@ import { TenantFormModalComponent } from '../components/tenant-form-modal.compon
                           type="button"
                           [disabled]="togglingId() === company.id"
                           (click)="toggleStatus(company, 'ACTIVO')"
-                          class="text-xs font-medium text-emerald-600 hover:text-emerald-800 disabled:opacity-50 transition-colors"
+                          class="text-xs font-medium text-emerald-600 hover:text-emerald-800 disabled:opacity-50 transition-colors cursor-pointer"
                         >
                           @if (togglingId() === company.id) {
                             Actualizando...
@@ -230,11 +237,19 @@ import { TenantFormModalComponent } from '../components/tenant-form-modal.compon
         }
       </div>
 
-      <!-- MODAL DE REGISTRO REACTIVO -->
+      <!-- MODAL DE REGISTRO REACTIVO (CU01) -->
       <app-tenant-form-modal
         [isOpen]="isModalOpen()"
         (close)="isModalOpen.set(false)"
         (created)="onCompanyCreated($event)"
+      />
+
+      <!-- MODAL DE GESTIÓN DE PLANES Y LÍMITES (CU02) -->
+      <app-subscription-modal
+        [isOpen]="isSubscriptionModalOpen()"
+        [company]="selectedCompanyForSubscription()"
+        (close)="isSubscriptionModalOpen.set(false)"
+        (updated)="onSubscriptionUpdated($event)"
       />
 
     </div>
@@ -248,6 +263,8 @@ export class TenantsPageComponent implements OnInit {
   protected readonly searchQuery = signal<string>('');
   protected readonly statusFilter = signal<string>('all');
   protected readonly isModalOpen = signal<boolean>(false);
+  protected readonly isSubscriptionModalOpen = signal<boolean>(false);
+  protected readonly selectedCompanyForSubscription = signal<Company | null>(null);
   protected readonly togglingId = signal<string | null>(null);
 
   protected readonly totalTenants = computed(() => this.companies().length);
@@ -310,6 +327,15 @@ export class TenantsPageComponent implements OnInit {
         toast.error(detail);
       },
     });
+  }
+
+  openSubscriptionModal(company: Company): void {
+    this.selectedCompanyForSubscription.set(company);
+    this.isSubscriptionModalOpen.set(true);
+  }
+
+  onSubscriptionUpdated(newSub: Subscription): void {
+    this.loadCompanies();
   }
 
   onCompanyCreated(newCompany: Company): void {

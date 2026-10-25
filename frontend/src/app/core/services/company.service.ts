@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiService } from './api.service';
-import { ApiResponse, Company, CompanyCreateDto, Plan } from '../models/company.model';
+import { ApiResponse, Company, CompanyCreateDto, Plan, Subscription } from '../models/company.model';
 
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
@@ -34,6 +34,22 @@ export class CompanyService {
 
   updateCompanyStatus(id: string, status: 'ACTIVO' | 'SUSPENDIDO'): Observable<Company> {
     return this.api.patch<ApiResponse<Company>>(`/saas/companies/${id}/status`, { status }).pipe(
+      map((res) => res.data),
+    );
+  }
+
+  getCompanySubscription(companyId: string): Observable<Subscription | null> {
+    return this.api.get<ApiResponse<Subscription | null>>(`/saas/subscriptions/company/${companyId}`).pipe(
+      map((res) => res.data || null),
+    );
+  }
+
+  assignSubscription(companyId: string, planId: string): Observable<Subscription> {
+    return this.api.post<ApiResponse<Subscription>>('/saas/subscriptions', {
+      company_id: companyId,
+      plan_id: planId,
+      status: 'ACTIVA',
+    }).pipe(
       map((res) => res.data),
     );
   }
