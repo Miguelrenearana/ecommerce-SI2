@@ -29,12 +29,12 @@ class AdminUserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
-    rol: RolEnum
+    rol: RolEnum | None = None
 
 
 # Para leer usuario en respuestas (registro, perfil)
 class UserOut(BaseModel):
-    id: UUID 
+    id: UUID
     name: str
     email: EmailStr
     gender: GenderEnum
@@ -66,7 +66,7 @@ class UserRead(BaseModel):
 class UsersPaginatedResponse(BaseModel):
     data: List[UserRead]
     countData: int
-    
+
 
 class UserUpdateRol(BaseModel):
     rol: RolEnum
