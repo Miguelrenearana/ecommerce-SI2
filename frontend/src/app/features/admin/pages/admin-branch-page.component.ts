@@ -11,7 +11,7 @@ import { HlmCardImports } from '../../../components/card/src';
 import { HlmFieldImports } from '../../../components/field/src';
 import { HlmInput } from '../../../components/input/src';
 import { HlmSelectImports } from '../../../components/select/src';
-import { AdminBranch } from '../models/admin-branch.model';
+import { AdminBranch, BranchQuota } from '../models/admin-branch.model';
 import { AdminBranchService } from '../services/admin-branch.service';
 import { getErrorMessage } from '../../../core/utils/http-error.util';
 import { requestWithToast } from '../../../core/utils/request-toast.util';
@@ -19,7 +19,16 @@ import { requestWithToast } from '../../../core/utils/request-toast.util';
 @Component({
   selector: 'app-admin-branch-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HlmButton, HlmInput, AdminActionMenuComponent, ...HlmCardImports, ...HlmFieldImports, ...HlmSelectImports],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    HlmButton,
+    HlmInput,
+    AdminActionMenuComponent,
+    ...HlmCardImports,
+    ...HlmFieldImports,
+    ...HlmSelectImports,
+  ],
   templateUrl: './admin-branch-page.component.html',
 })
 export class AdminBranchPageComponent {
@@ -27,6 +36,7 @@ export class AdminBranchPageComponent {
   private readonly api = inject(AdminBranchService);
 
   protected readonly branches = signal<AdminBranch[]>([]);
+  protected readonly quota = signal<BranchQuota | null>(null);
   protected readonly loading = signal(false);
   protected readonly modalOpen = signal(false);
   protected readonly modalMode = signal<'create' | 'edit'>('create');
@@ -42,19 +52,34 @@ export class AdminBranchPageComponent {
   protected readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required]],
     city: ['', [Validators.required]],
+    address: ['', [Validators.required]],
+    phone: [''],
+    opening_hours: ['09:00 - 20:00'],
+    latitude: [-17.7833, [Validators.required]],
+    longitude: [-63.1821, [Validators.required]],
     is_default: [false],
     is_active: [true],
   });
 
   constructor() {
-    void this.loadBranches();
+    void this.loadData();
   }
 
   protected openModal(): void {
     this.closeMenu();
     this.modalMode.set('create');
     this.editingBranchId.set(null);
-    this.form.reset({ name: '', city: '', is_default: false, is_active: true });
+    this.form.reset({
+      name: '',
+      city: '',
+      address: '',
+      phone: '',
+      opening_hours: '09:00 - 20:00',
+      latitude: -17.7833,
+      longitude: -63.1821,
+      is_default: false,
+      is_active: true,
+    });
     this.modalOpen.set(true);
   }
 
@@ -62,7 +87,17 @@ export class AdminBranchPageComponent {
     this.closeMenu();
     this.modalMode.set('edit');
     this.editingBranchId.set(branch.id);
-    this.form.reset({ name: branch.name, city: branch.city, is_default: branch.is_default, is_active: branch.is_active });
+    this.form.reset({
+      name: branch.name,
+      city: branch.city,
+      address: branch.address || '',
+      phone: branch.phone || '',
+      opening_hours: branch.opening_hours || '09:00 - 20:00',
+      latitude: Number(branch.latitude) || -17.7833,
+      longitude: Number(branch.longitude) || -63.1821,
+      is_default: branch.is_default,
+      is_active: branch.is_active,
+    });
     this.modalOpen.set(true);
   }
 
@@ -84,9 +119,13 @@ export class AdminBranchPageComponent {
     try {
       await requestWithToast(
         this.api.updateBranchActive(branch.id, { is_active: !branch.is_active }),
-        { loading: 'Actualizando estado...', success: `Sucursal ${!branch.is_active ? 'activada' : 'desactivada'} correctamente.`, error: 'No se pudo actualizar el estado de la sucursal.' },
+        {
+          loading: 'Actualizando estado...',
+          success: `Sucursal ${!branch.is_active ? 'activada' : 'desactivada'} correctamente.`,
+          error: 'No se pudo actualizar el estado de la sucursal.',
+        },
       );
-      await this.loadBranches();
+      await this.loadData();
     } catch {
       // El toast de error ya se mostró con requestWithToast
     }
@@ -112,7 +151,7 @@ export class AdminBranchPageComponent {
         this.api.deleteBranch(branch.id),
         { loading: 'Eliminando sucursal...', success: 'Sucursal eliminada correctamente.', error: 'No se pudo eliminar la sucursal.' },
       );
-      await this.loadBranches();
+      await this.loadData();
       this.cancelDelete();
     } catch {
       // El toast de error ya se mostró con requestWithToast
@@ -139,8 +178,8 @@ export class AdminBranchPageComponent {
           { loading: 'Guardando sucursal...', success: 'Sucursal creada correctamente.', error: 'No se pudo guardar la sucursal.' },
         );
       }
-      this.form.reset({ name: '', city: '', is_default: false, is_active: true });
-      await this.loadBranches();
+      this.form.reset();
+      await this.loadData();
       this.closeModal();
     } catch {
       // El toast de error ya se mostró con requestWithToast
@@ -149,12 +188,18 @@ export class AdminBranchPageComponent {
     }
   }
 
-  private async loadBranches(): Promise<void> {
+  protected async loadData(): Promise<void> {
     try {
-      const response = await firstValueFrom(this.api.listBranches());
-      this.branches.set(response.data ?? []);
+      const [branchesRes, quotaRes] = await Promise.all([
+        firstValueFrom(this.api.listBranches()),
+        firstValueFrom(this.api.getBranchQuota()).catch(() => null),
+      ]);
+      this.branches.set(branchesRes.data ?? []);
+      if (quotaRes?.data) {
+        this.quota.set(quotaRes.data);
+      }
     } catch (error) {
-      toast.error(getErrorMessage(error, 'No se pudieron cargar las sucursales.'));
+      toast.error(getErrorMessage(error, 'No se pudieron cargar los datos de las sucursales.'));
     }
   }
 }

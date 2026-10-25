@@ -2,7 +2,14 @@ import { Injectable, inject } from '@angular/core';
 
 import { ApiResponse } from '../../../core/models/api.model';
 import { ApiService } from '../../../core/services/api.service';
-import { AdminBranch, BranchListResponse, CreateBranchRequest, UpdateBranchActiveRequest, UpdateBranchRequest } from '../models/admin-branch.model';
+import {
+  AdminBranch,
+  BranchListResponse,
+  BranchQuota,
+  CreateBranchRequest,
+  UpdateBranchActiveRequest,
+  UpdateBranchRequest,
+} from '../models/admin-branch.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminBranchService {
@@ -10,6 +17,10 @@ export class AdminBranchService {
 
   listBranches() {
     return this.api.get<BranchListResponse>('/branches/');
+  }
+
+  getBranchQuota() {
+    return this.api.get<ApiResponse<BranchQuota>>('/branches/quota');
   }
 
   createBranch(payload: CreateBranchRequest) {
