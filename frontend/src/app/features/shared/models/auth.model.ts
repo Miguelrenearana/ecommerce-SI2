@@ -1,5 +1,7 @@
 export type RolUsuario = 'superadmin' | 'administrador' | 'cliente' | 'proveedor' | 'encargado' | 'cajero' | 'delivery';
 
+export type AmbitoAcceso = 'clientes' | 'administrativos';
+
 export type GeneroUsuario = 'masculino' | 'femenino';
 
 export interface UsuarioAuth {
@@ -16,7 +18,7 @@ export interface UsuarioAuth {
 export interface LoginRequest {
   email: string;
   password: string;
-  rol: RolUsuario;
+  rol?: RolUsuario | null;
 }
 
 export interface RegisterRequest {

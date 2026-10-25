@@ -1,7 +1,7 @@
 <div class="grid min-h-screen lg:grid-cols-2 bg-white text-slate-900 font-body">
   
   <!-- PANEL IZQUIERDO: FORMULARIO DE ACCESO -->
-  <section class="flex flex-col justify-between px-6 py-8 sm:px-12 lg:px-16 xl:px-20">
+  <section class="flex flex-col justify-between px-6 py-8 sm:px-12 lg:px-16 xl:px-24">
     
     <!-- HEADER CON LOGO FASHIONSTORE Y RETORNO -->
     <div class="flex items-center justify-between mb-8">
@@ -13,10 +13,10 @@
           onerror="this.style.display='none'"
         />
         <div class="flex flex-col">
-          <span class="font-title text-xl font-bold tracking-wider text-slate-900 group-hover:text-[#cf7255] transition-colors">
+          <span class="font-title text-xl font-bold tracking-wider text-slate-900 group-hover:text-[#0d6b63] transition-colors">
             FASHIONSTORE
           </span>
-          <span class="text-[9px] font-semibold tracking-widest text-slate-600 uppercase">
+          <span class="text-[9px] font-semibold tracking-widest text-slate-500 uppercase">
             SaaS Platform
           </span>
         </div>
@@ -24,7 +24,7 @@
 
       <a 
         routerLink="/" 
-        class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-950 transition-colors"
+        class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
       >
         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -34,55 +34,59 @@
     </div>
 
     <!-- CONTENEDOR CENTRAL DEL LOGIN -->
-    <div class="mx-auto w-full max-w-md my-auto space-y-6 py-4">
+    <div class="mx-auto w-full max-w-sm my-auto space-y-7 py-4">
       
-      <!-- SELECTOR DE ROL -->
+      <!-- SELECTOR DE ACTORES (CLIENTES VS ADMINISTRATIVOS) -->
       <div class="space-y-2">
-        <p class="text-[11px] font-bold tracking-wider uppercase text-slate-600">
-          Selecciona tu rol de acceso
-        </p>
-        <hlm-tabs [tab]="activeRole()" class="w-full" (tabActivated)="selectRole($event)">
-          <hlm-tabs-list aria-label="Seleccionar rol" class="grid-cols-3 sm:grid-cols-4 gap-1 p-1 bg-slate-50 border-slate-200">
-            <button hlmTabsTrigger="cliente" type="button" class="font-medium text-xs py-2">
-              <span>Cliente</span>
-            </button>
-            <button hlmTabsTrigger="proveedor" type="button" class="font-medium text-xs py-2">
-              <span>Proveedor</span>
-            </button>
-            <button hlmTabsTrigger="encargado" type="button" class="font-medium text-xs py-2">
-              <span>Encargado</span>
-            </button>
-            <button hlmTabsTrigger="cajero" type="button" class="font-medium text-xs py-2">
-              <span>Cajero</span>
-            </button>
-            <button hlmTabsTrigger="delivery" type="button" class="font-medium text-xs py-2">
-              <span>Delivery</span>
-            </button>
-            <button hlmTabsTrigger="administrador" type="button" class="font-medium text-xs py-2">
-              <span>Admin</span>
-            </button>
-            <button hlmTabsTrigger="superadmin" type="button" class="font-medium text-xs py-2">
-              <span>Superadmin</span>
-            </button>
-          </hlm-tabs-list>
-        </hlm-tabs>
+        <div class="grid grid-cols-2 rounded-2xl border border-slate-200/80 bg-slate-50 p-1.5 shadow-xs">
+          <button
+            type="button"
+            (click)="selectActor('clientes')"
+            [class.bg-[#0d6b63]]="activeActor() === 'clientes'"
+            [class.text-white]="activeActor() === 'clientes'"
+            [class.shadow-sm]="activeActor() === 'clientes'"
+            [class.text-slate-600]="activeActor() !== 'clientes'"
+            [class.hover:text-slate-900]="activeActor() !== 'clientes'"
+            class="py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wide transition-all duration-300 ease-out cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Clientes</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="selectActor('administrativos')"
+            [class.bg-[#0d6b63]]="activeActor() === 'administrativos'"
+            [class.text-white]="activeActor() === 'administrativos'"
+            [class.shadow-sm]="activeActor() === 'administrativos'"
+            [class.text-slate-600]="activeActor() !== 'administrativos'"
+            [class.hover:text-slate-900]="activeActor() !== 'administrativos'"
+            class="py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wide transition-all duration-300 ease-out cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Administrativos</span>
+          </button>
+        </div>
       </div>
 
       <!-- TÍTULO Y SUBTÍTULO -->
-      <div class="space-y-1.5 text-left pt-2">
+      <div class="space-y-1.5 text-center sm:text-left">
         <h1 class="font-title text-3xl font-bold tracking-tight text-slate-900">
           Iniciar sesión
         </h1>
-        <p class="text-sm text-slate-600">
-          Ingresa al panel de <span class="font-semibold text-slate-900 capitalize">{{ activeRole() }}</span> en FashionStore
+        <p class="text-xs text-slate-500 leading-relaxed">
+          @if (activeActor() === 'clientes') {
+            Ingresa para explorar prendas, gestionar pedidos y reservas.
+          } @else {
+            Ingresa al portal administrativo y operativo de FashionStore.
+          }
         </p>
       </div>
 
       <!-- FORMULARIO REACTIVO -->
       <form class="space-y-4 text-left" [formGroup]="form" (ngSubmit)="submit()">
-        <div hlmFieldGroup class="space-y-3.5">
+        <div hlmFieldGroup class="space-y-4">
+          <!-- Campo Correo -->
           <div hlmField class="space-y-1">
-            <label hlmFieldLabel for="email" class="text-xs font-semibold text-slate-700">Correo electrónico</label>
+            <label hlmFieldLabel for="email" class="text-xs font-semibold text-slate-700">Correo</label>
             <input 
               id="email" 
               hlmInput 
@@ -92,99 +96,105 @@
               autocapitalize="none" 
               autocorrect="off" 
               spellcheck="false" 
-              placeholder="tu.correo@tienda.com" 
+              placeholder="tucorreo@gmail.com" 
               (input)="normalizeEmailInput($event)"
-              class="h-11 rounded-xl border-slate-200 focus:border-[#f8baa3] focus:ring-[#f8baa3]"
+              class="h-11 rounded-xl border-slate-200 focus:border-[#0d6b63] focus:ring-[#0d6b63]/20 transition-all text-sm"
             />
             <hlm-field-error validator="required">El correo es obligatorio.</hlm-field-error>
-            <hlm-field-error validator="email">Ingresa un correo válido.</hlm-field-error>
+            <hlm-field-error validator="email">Ingresa un correo electrónico válido.</hlm-field-error>
           </div>
 
+          <!-- Campo Contraseña con Botón de Ojo (Show/Hide Password) -->
           <div hlmField class="space-y-1">
             <label hlmFieldLabel for="password" class="text-xs font-semibold text-slate-700">Contraseña</label>
-            <input 
-              id="password" 
-              hlmInput 
-              type="password" 
-              formControlName="password" 
-              autocomplete="current-password" 
-              placeholder="••••••••" 
-              class="h-11 rounded-xl border-slate-200 focus:border-[#f8baa3] focus:ring-[#f8baa3]"
-            />
+            <div class="relative flex items-center">
+              <input 
+                id="password" 
+                hlmInput 
+                [type]="showPassword() ? 'text' : 'password'" 
+                formControlName="password" 
+                autocomplete="current-password" 
+                placeholder="••••••••" 
+                class="h-11 w-full rounded-xl border-slate-200 pr-11 focus:border-[#0d6b63] focus:ring-[#0d6b63]/20 transition-all text-sm"
+              />
+              <button
+                type="button"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
+                class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-700 rounded-lg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#0d6b63]/20"
+              >
+                @if (showPassword()) {
+                  <!-- Icono Ojo Tachado (Ocultar) -->
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                  </svg>
+                } @else {
+                  <!-- Icono Ojo Abierto (Ver) -->
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                }
+              </button>
+            </div>
             <hlm-field-error validator="required">La contraseña es obligatoria.</hlm-field-error>
           </div>
         </div>
 
-        <input type="hidden" formControlName="rol" />
-
+        <!-- Botón de Ingreso con Feedback Fluido -->
         <button 
           type="submit" 
           [disabled]="form.invalid || loading()"
-          class="btn-brand w-full h-11 rounded-xl font-bold text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer mt-2"
+          class="w-full h-11 rounded-xl font-semibold text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer mt-4 bg-[#0d6b63] hover:bg-[#0b5852] text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           @if (loading()) {
-            <svg class="animate-spin h-4 w-4 text-slate-900" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
-            <span>Ingresando...</span>
+            <span>Iniciando sesión...</span>
           } @else {
-            <span>Ingresar al sistema</span>
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
+            <span>Ingresar</span>
           }
         </button>
       </form>
 
-      <!-- ENLACE AL REGISTRO -->
-      @if (activeRole() === 'cliente') {
-        <p class="text-center text-xs text-slate-600 pt-2 border-t border-slate-100">
-          ¿No tienes una cuenta de cliente?
-          <a routerLink="/auth/register" class="font-bold text-slate-900 underline hover:text-[#cf7255] transition-colors ml-1">
-            Regístrate gratis
-          </a>
-        </p>
-      }
+      <!-- ENLACE AL REGISTRO O AVISO INFORMATIVO -->
+      <div class="pt-3 text-center text-xs">
+        @if (activeActor() === 'clientes') {
+          <p class="text-slate-500">
+            ¿No tienes cuenta?
+            <a routerLink="/auth/register" class="font-bold text-slate-900 underline hover:text-[#0d6b63] transition-colors ml-1">
+              Regístrate
+            </a>
+          </p>
+        } @else {
+          <p class="text-slate-400">
+            Acceso restringido para personal operativo y administrativo.
+          </p>
+        }
+      </div>
 
     </div>
 
     <!-- PIE DEL PANEL IZQUIERDO -->
-    <div class="pt-6 text-center lg:text-left text-xs text-slate-600">
+    <div class="pt-6 text-center lg:text-left text-xs text-slate-400">
       © 2026 FashionStore SaaS · Plataforma de Gestión Textil
     </div>
 
   </section>
 
-  <!-- PANEL DERECHO: FOTOGRAFÍA EDITORIAL CON OVERLAY Y TARJETA FLOTANTE -->
-  <aside class="relative hidden overflow-hidden lg:block bg-slate-950">
+  <!-- PANEL DERECHO: FOTOGRAFÍA EDITORIAL SIN TARJETAS DISTRACTORAS -->
+  <aside class="relative hidden overflow-hidden lg:block bg-[#2d5f57]">
     <img
       src="/assets/clothes-perch-cream.jpg"
-      alt="Boutique y tienda de moda FashionStore"
+      alt="Boutique y colecciones FashionStore"
       class="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-1000 hover:scale-105"
       onerror="this.src='/assets/women-store.jpg'"
     />
     
-    <!-- Scrim de contraste elegante sin tinte opaco -->
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
-    
-    <!-- TARJETA EDITORIAL FLOTANTE -->
-    <div class="absolute bottom-10 left-10 right-10 rounded-2xl bg-white/95 p-6 shadow-2xl backdrop-blur-md border border-white/50 max-w-lg mx-auto">
-      <div class="flex items-center justify-between mb-2">
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-[#fff2ec] px-2.5 py-0.5 text-[11px] font-bold text-[#cf7255]">
-          ✦ Boutique Edition
-        </span>
-        <span class="text-xs text-slate-600 font-medium">Plataforma SaaS</span>
-      </div>
-      <p class="text-sm font-medium text-slate-800 leading-relaxed">
-        "Controlar nuestras colecciones por curva de tallas y agilizar las ventas con el POS nos permitió escalar a 3 sucursales."
-      </p>
-      <div class="mt-3 flex items-center justify-between text-xs text-slate-600 border-t border-slate-100 pt-2">
-        <span class="font-semibold text-slate-900">FashionStore Network</span>
-        <span>Inventario y POS en tiempo real</span>
-      </div>
-    </div>
-
+    <!-- Scrim sutil para contraste armónico -->
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
   </aside>
 
 </div>
