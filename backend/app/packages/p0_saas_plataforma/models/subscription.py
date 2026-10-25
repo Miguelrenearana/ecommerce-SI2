@@ -26,6 +26,8 @@ class Subscription(Base):
     start_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     end_date = Column(DateTime(timezone=True), nullable=True)
     status = Column(String(20), nullable=False, default="ACTIVA")  # ACTIVA, VENCIDA, CANCELADA
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
     company = relationship("Company", back_populates="subscriptions")
     plan = relationship("Plan", back_populates="subscriptions")
