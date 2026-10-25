@@ -2,27 +2,33 @@
 
 ## Tareas Inmediatas de Implementación (Presentación 1: 25/10/2026)
 
-### Hito 1: Núcleo SaaS Multitenant y Aislamiento por Empresa
+### Hito 1: Núcleo SaaS Multitenant y Planes Comerciales (CU01 & CU02 COMPLETADOS)
 1. **Paquete `backend/app/packages/p0_saas_plataforma/`:**
-   - [x] Modelos SQLAlchemy: `Company`, `Plan`, `Subscription`.
+   - [x] Modelos SQLAlchemy: `Company`, `Plan`, `Subscription` con descripciones comerciales y auditoría.
    - [x] Schemas Pydantic: `CompanyCreate`, `CompanyRead`, `PlanRead`, `SubscriptionCreate`.
-   - [x] Servicios: `tenant_service.py` (crear empresa y administrador inicial) y `quota_service.py` (validar límite de sucursales).
-   - [x] Router `p0_router`: Montar `/api/saas/companies`, `/api/saas/plans` y `/api/saas/subscriptions` en `main.py`.
+   - [x] Servicios: `tenant_service.py` y `quota_service.py` (validar límite de sucursales e IA).
+   - [x] Router `p0_router`: `/api/saas/companies`, `/api/saas/plans` y `/api/saas/subscriptions` con *Downgrade Guard*.
 2. **Implementar Aislamiento por Tenant:**
    - [x] Crear `backend/app/core/tenant_context.py` con dependencias FastAPI para resolver `tenant_id`.
    - [x] Añadir columna `tenant_id` a `users` y `branches`.
    - [x] Actualizar login JWT en `p1_gestion_usuarios_acceso/routes/auth.py` para emitir token con claim `tenant_id`.
-3. **Persistencia y Población de Datos Inicial (Migración & Seeders):**
-   - [x] Crear migración Alembic `0038_add_saas_multitenant_tables.py` y ejecutar `alembic upgrade head`.
-   - [x] Script de seed con 2 planes: Básico (máx. 2 sucursales) y Profesional (máx. 10 sucursales).
-   - [x] Alta de 2 empresas de prueba independientes: "Boutique Elegance" y "Moda Urbana" con sus respectivos administradores y sucursales.
+3. **Persistencia y Población de Datos Inicial (Migraciones 0038 y 0039):**
+   - [x] Ejecutadas migraciones `0038` y `0039` con enriquecimiento de campos.
+   - [x] Script de seed con planes Básico ($29) y Profesional ($99).
+   - [x] Alta de 2 empresas de prueba: "Boutique Elegance" y "Moda Urbana".
    - [x] Alta del Superadministrador global (`superadmin@fashionstore.com`).
-4. **Frontend Master Portal (Superadmin - CU01 Completado):**
-   - [x] Servicio Angular para consumir API de tenants (`/api/saas/companies`).
-   - [x] Vista en Angular para listado y alta reactiva de empresas tenants (CU01).
-   - [x] Asignación de plan de suscripción comercial (CU02).
+4. **Frontend Master Portal (Superadmin - CU01 y CU02 Completados):**
+   - [x] Servicio Angular `company.service.ts` con consumo de empresas, planes y asignación de suscripciones.
+   - [x] Vista en Angular `tenants-page.component.ts` para listado, métricas KPI y búsqueda.
+   - [x] Modal de registro reactivo de empresas `tenant-form-modal.component.ts`.
+   - [x] Modal de gestión de suscripciones y cambio de plan `subscription-modal.component.ts` con alerta de cuotas.
 
-### Hito 2: Persistencia Local del Catálogo (PWA e IndexedDB)
+### Hito 1.5: Control de Sucursales Bajo Límites del Plan (CU04)
+1. **Validación en Backend y Frontend para Creación de Sucursales:**
+   - [ ] Conectar `validate_branch_quota` en `branch_routes.py` de `p1_gestion_usuarios_acceso`.
+   - [ ] Deshabilitar botón "Nueva Sucursal" en `admin-branch-page.component.ts` cuando se alcancen las 2 sucursales en Plan Básico.
+
+### Hito 2: Persistencia Local del Catálogo (PWA e IndexedDB - CU08 & CU09)
 1. **Frontend PWA:**
    - [ ] Configurar `@angular/pwa`, Service Worker y Web App Manifest.
    - [ ] Crear `src/app/core/offline/idb.service.ts` para almacenar catálogo de prendas y existencias conocidas.

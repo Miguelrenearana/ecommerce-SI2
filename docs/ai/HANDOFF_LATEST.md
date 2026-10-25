@@ -1,28 +1,27 @@
 # HANDOFF LATEST — FASHIONSTORE SAAS MULTITENANT
 
-## Estado de Relevo Operativo al 24/10/2026
+## Estado de Relevo Operativo al 25/10/2026
 
 ### 1. Avances Consolidados en esta Sesión
-1. **Persistencia Multitenant en PostgreSQL (Migración Alembic 0038):**
-   - Ejecutada exitosamente la migración `0038_add_saas_multitenant_tables.py`.
-   - Creadas las tablas `companies`, `plans` y `subscriptions` con índices y constraints de unicidad (`nit_rut`, `subdomain`).
-   - Agregada la clave foránea `tenant_id` a `users` y `branches`.
-   - Incorporado el valor `superadmin` al tipo enum `rolenum` en PostgreSQL.
+1. **Persistencia Multitenant y Esquema Enriquecido (Migraciones 0038 y 0039):**
+   - Ejecutadas exitosamente las migraciones `0038_add_saas_multitenant_tables.py` y `0039_enrich_plans_and_subscriptions.py`.
+   - Tablas `companies`, `plans` y `subscriptions` creadas y enriquecidas con descripciones comerciales y timestamps de auditoría.
+   - Claves foráneas e índices `tenant_id` en `users` y `branches` con aislamiento lógico garantizado.
 2. **Población de Datos Inicial (Seeders SaaS):**
-   - Ejecutado exitosamente [`backend/seed_saas.py`](file:///c:/Users/PERSONAL/ecommerce-SI2/backend/seed_saas.py).
-   - Sembrados los planes: `BASICO` (2 sucursales máx, sin IA) y `PROFESIONAL` (10 sucursales máx, con IA).
-   - Creado el Superadmin Global: `superadmin@fashionstore.com` (Clave: `SuperAdmin2026!`).
-   - Creado Tenant 1: "Boutique Elegance" (subdominio: `elegance`, Plan Pro, 2 sucursales, Admin: `admin@elegance.com` / `AdminElegance2026!`).
-   - Creado Tenant 2: "Moda Urbana" (subdominio: `modaurbana`, Plan Básico, 1 sucursal, Admin: `admin@modaurbana.com` / `AdminUrbana2026!`).
-3. **Backend y Aislamiento `p0_saas_plataforma`:**
-   - Modelos, schemas, servicios (`tenant_service.py`, `quota_service.py`) y routers montados en `backend/main.py`.
-4. **Frontend Master Portal (Superadmin - CU01 Completo):**
-   - Servicio [`company.service.ts`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/src/app/core/services/company.service.ts) y modelos de datos creados.
-   - Componentes creados: [`tenants-page.component.ts`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/src/app/features/superadmin/pages/tenants-page.component.ts) con KPIs, buscador en tiempo real, conmutador de estado activo/suspendido y modal de alta reactiva con asignación de plan.
-   - Enrutamiento integrado en `app.routes.ts` con `roleGuard(['superadmin'])` y enlace en sidebar de `AppShellComponent`.
-   - Botón de acceso rápido para desarrollo en `login-page.component.html`.
+   - Planes oficiales sembrados: `BASICO` ($29/mes, máx. 2 sucursales, sin IA) y `PROFESIONAL` ($99/mes, máx. 10 sucursales, con IA).
+   - Superadmin Global: `superadmin@fashionstore.com` (Clave: `SuperAdmin2026!`).
+   - Tenant 1: "Boutique Elegance" (Plan Pro, 2 sucursales activas).
+   - Tenant 2: "Moda Urbana" (Plan Básico, 1 sucursal activa).
+3. **Backend `p0_saas_plataforma` (CU01 y CU02 Completos):**
+   - Endpoints `/api/saas/companies`, `/api/saas/plans` y `/api/saas/subscriptions` operativos.
+   - Lógica de cuotas en `quota_service.py` y regla de negocio *Downgrade Guard* en `subscription_routes.py` (bloqueo si sucursales activas > cuota del nuevo plan).
+4. **Frontend Master Portal (Superadmin - CU01 y CU02 Completos):**
+   - Servicio [`company.service.ts`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/src/app/core/services/company.service.ts) con métodos para listar, crear, conmutar estado y reasignar planes.
+   - Componente [`subscription-modal.component.ts`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/src/app/features/superadmin/components/subscription-modal.component.ts) para cambio de plan interactivo con validación de cuotas.
+   - Vista [`tenants-page.component.ts`](file:///c:/Users/PERSONAL/ecommerce-SI2/frontend/src/app/features/superadmin/pages/tenants-page.component.ts) con botón directo "Gestionar Plan" por cada tenant.
+   - Compilación limpia con `ng build` (código 0).
 
 ### 2. Próxima Tarea Inmediata (Presentación 1: 25/10/2026)
-* **Objetivo:** Catálogo Offline (PWA + IndexedDB) y Reglas de Suscripción (CU02/CU04):
-  1. Configuración de Service Worker e IndexedDB (`idb.service.ts`) para el catálogo offline (CU08 y CU09).
-  2. Verificación de reglas comerciales de sucursales en backend y frontend (CU02/CU04).
+* **Objetivo:** Reglas de Suscripción en Sucursales (CU04) y Catálogo Offline (CU08/CU09):
+  1. Integrar `validate_branch_quota` en la creación de sucursales físicas para el Tenant Admin (CU04).
+  2. Implementar persistencia local con IndexedDB (`idb.service.ts`) y Service Worker para catálogo de prendas desconectado (CU08 y CU09).
